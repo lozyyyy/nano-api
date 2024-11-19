@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('node:path');
-
-const { createCanvas, loadImage } = require('canvas');
+const { createCanvas, loadImage } = require('@napi-rs/canvas'); // Usando o @napi-rs/canvas
 const { getUserInfo } = require('../helpers/disav');
 
 const app = express();
@@ -58,7 +57,7 @@ app.get('/api/perfil', async (req, res) => {
 
     // Carregar avatar
     const avatar = await loadImage(avatarUrl).catch(() => {
-      console.error('Erro ao carregar o avatar:', error);
+      console.error('Erro ao carregar o avatar.');
       return null;
     });
 

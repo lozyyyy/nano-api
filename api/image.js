@@ -76,8 +76,8 @@ app.get('/api/perfil', async (req, res) => {
   ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, height / 2, width, height / 2);
 
-  // Ajustar tamanho do avatar e adicionar borda
-  const avatarSize = 120; // Aumentei o tamanho do avatar
+  // Ajuste do tamanho do avatar e borda
+  const avatarSize = 130; // Aumentei o tamanho do avatar
   const avatarX = 40;
   const avatarY = (height / 2) - (avatarSize / 2);
 
@@ -89,20 +89,21 @@ app.get('/api/perfil', async (req, res) => {
   ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
   ctx.restore();
 
-  // Adicionar borda ao avatar
+  // Borda do avatar mais larga e colada
   ctx.beginPath();
-  ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2 + 5, 0, Math.PI * 2);
+  ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2 + 8, 0, Math.PI * 2);
   ctx.strokeStyle = '#1a1a1a'; // Cor da borda igual ao fundo inferior
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 8; // Aumento da largura da borda
   ctx.stroke();
 
+  // Nome do usuário alinhado à direita do avatar
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 24px Arial';
-  ctx.fillText(userInfo.username, 180, height / 2 + 40);
+  ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 40);
 
   const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
   ctx.font = '16px Arial';
-  ctx.fillText(`Sobre mim: ${aboutMeText}`, 180, height / 2 + 70);
+  ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX + avatarSize + 20, height / 2 + 70);
 
   if (req.query.json === 'true') {
     return res.json(userInfo);

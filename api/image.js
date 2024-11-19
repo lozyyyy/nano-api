@@ -1,7 +1,6 @@
 const express = require('express');
 const { createCanvas, loadImage } = require('canvas');
 const { getUserInfo } = require('../helpers/disav');
-console.log(getUserInfo('769969803526930504'));
 
 const app = express();
 
@@ -60,6 +59,8 @@ app.get('/api/perfil', async (req, res) => {
   // } catch (error) {
   //   console.error('Erro ao buscar dados:', error);
   // }
+  console.log(getUserInfo('769969803526930504'));
+  
 
   res.setHeader('Content-Type', 'image/png');
   res.send(canvas.toBuffer('image/png'));

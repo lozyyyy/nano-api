@@ -59,8 +59,7 @@ app.get('/api/perfil', async (req, res) => {
   // } catch (error) {
   //   console.error('Erro ao buscar dados:', error);
   // }
-  console.log(getUserInfo('769969803526930504'));
-  
+  setTimeout(() => console.log(await getUserInfo('769969803526930504')), 10000);
 
   res.setHeader('Content-Type', 'image/png');
   res.send(canvas.toBuffer('image/png'));

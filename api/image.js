@@ -53,6 +53,10 @@ app.get('/api/perfil', async (req, res) => {
 
   // Tentar carregar o avatar e o banner
   let avatar, banner;
+  if (req.query.json === 'true') {
+    return res.json(userInfo);
+  }
+  
   try {
     avatar = await loadImage(avatarUrl);
   } catch (error) {
@@ -104,10 +108,7 @@ app.get('/api/perfil', async (req, res) => {
   ctx.fillText(`Sobre mim: ${aboutMeText}`, 180, height / 2 + 70);
 
   // Resposta em JSON se o parâmetro json=true estiver presente
-  if (req.query.json === 'true') {
-    return res.json(userInfo);
-  }
-
+  
   // Enviar a imagem como resposta
   res.setHeader('Content-Type', 'image/png');
   res.send(canvas.toBuffer('image/png'));

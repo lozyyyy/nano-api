@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('node:path');
+
 const { createCanvas, loadImage } = require('canvas');
 const { getUserInfo } = require('../helpers/disav');
 
@@ -38,8 +40,6 @@ app.get('/api', (req, res) => {
   `);
 });
 
-const path = require('node:path');
-
 app.get('/api/perfil', async (req, res) => {
   const width = 800;
   const height = 400;
@@ -76,11 +76,18 @@ app.get('/api/perfil', async (req, res) => {
   ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, height / 2, width, height / 2);
 
-  // Ajuste do tamanho do avatar e borda
-  const avatarSize = 130; // Aumentei o tamanho do avatar
+  // Ajuste do tamanho do avatar e simulação da borda com círculo
+  const avatarSize = 130;
   const avatarX = 40;
   const avatarY = (height / 2) - (avatarSize / 2);
 
+  // Desenhar um círculo maior para simular a borda
+  ctx.beginPath();
+  ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, (avatarSize / 2) + 10, 0, Math.PI * 2);
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fill();
+
+  // Desenhar o avatar sobre o círculo para que pareça uma borda
   ctx.save();
   ctx.beginPath();
   ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
@@ -88,13 +95,6 @@ app.get('/api/perfil', async (req, res) => {
 
   ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
   ctx.restore();
-
-  // Borda do avatar mais larga e colada
-  ctx.beginPath();
-  ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2 + 8, 0, Math.PI * 2);
-  ctx.strokeStyle = '#1a1a1a'; // Cor da borda igual ao fundo inferior
-  ctx.lineWidth = 8; // Aumento da largura da borda
-  ctx.stroke();
 
   // Nome do usuário alinhado à direita do avatar
   ctx.fillStyle = '#ffffff';

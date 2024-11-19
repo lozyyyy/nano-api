@@ -1,5 +1,5 @@
-import express from 'express';
-import { createCanvas } from 'canvas';
+const express = require('express');
+const { createCanvas } = require('canvas');
 
 const app = express();
 

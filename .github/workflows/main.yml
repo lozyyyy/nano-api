@@ -1,4 +1,4 @@
-name: Deploy to Vercel
+name: Setup Node.js Environment
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,10 +20,3 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          npm install -g vercel
-          vercel --prod --token=$VERCEL_TOKEN

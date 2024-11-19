@@ -44,10 +44,12 @@ app.get('/api/perfil', async (req, res) => {
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
-  // Carregar o avatar e banner do usuário
+  // Obter informações do usuário usando o ID
   const userInfo = await getUserInfo('769969803526930504');  // Substitua pelo ID correto
   const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
-  const bannerUrl = userInfo.banner || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_banner.png';
+
+  // Verificar se o usuário possui um banner, caso contrário, usar o banner base
+  const bannerUrl = userInfo.banner || './Bbanner';
 
   const avatar = await loadImage(avatarUrl);
   const banner = await loadImage(bannerUrl);
@@ -78,8 +80,9 @@ app.get('/api/perfil', async (req, res) => {
   ctx.fillText(userInfo.username, 180, height / 2 + 40);
 
   // Adicionar "Sobre mim"
+  const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
   ctx.font = '16px Arial';
-  ctx.fillText('Sobre mim: Entusiasta de tecnologia e programação.', 180, height / 2 + 70);
+  ctx.fillText(`Sobre mim: ${aboutMeText}`, 180, height / 2 + 70);
 
   // Resposta em JSON se o parâmetro json=true estiver presente
   if (req.query.json === 'true') {
@@ -90,4 +93,5 @@ app.get('/api/perfil', async (req, res) => {
   res.setHeader('Content-Type', 'image/png');
   res.send(canvas.toBuffer('image/png'));
 });
+
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

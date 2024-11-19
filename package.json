@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "express": "^4.18.4",
-    "canvas": "^2.11.0"
+    "napi-rs/canvas": "^0.1.62"
   }
 }

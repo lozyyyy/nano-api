@@ -1,0 +1,13 @@
+{
+  "name": "nano-api",
+  "version": "1.0.0",
+  "description": "API usando Node.js, Express e Canvas para Vercel",
+  "main": "api/image.js",
+  "scripts": {
+    "start": "node api/image.js"
+  },
+  "dependencies": {
+    "express": "^4.18.4",
+    "canvas": "^2.11.0"
+  }
+}

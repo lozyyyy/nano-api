@@ -76,8 +76,9 @@ app.get('/api/perfil', async (req, res) => {
   ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, height / 2, width, height / 2);
 
-  const avatarSize = 100;
-  const avatarX = 50;
+  // Ajustar tamanho do avatar e adicionar borda
+  const avatarSize = 120; // Aumentei o tamanho do avatar
+  const avatarX = 40;
   const avatarY = (height / 2) - (avatarSize / 2);
 
   ctx.save();
@@ -87,6 +88,13 @@ app.get('/api/perfil', async (req, res) => {
 
   ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
   ctx.restore();
+
+  // Adicionar borda ao avatar
+  ctx.beginPath();
+  ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2 + 5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#1a1a1a'; // Cor da borda igual ao fundo inferior
+  ctx.lineWidth = 6;
+  ctx.stroke();
 
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 24px Arial';

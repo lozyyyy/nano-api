@@ -46,8 +46,8 @@ app.get('/api/perfil', async (req, res) => {
 
   // Carregar o avatar e banner do usuário
   const userInfo = await getUserInfo('769969803526930504');  // Substitua pelo ID correto
-  const avatarUrl = userInfo.avatar || 'https://cdn.discordapp.com/avatars/769969803526930504/default.png';
-  const bannerUrl = 'https://cdn.discordapp.com/banners/769969803526930504/yourBannerId.png' || 'https://cdn.discordapp.com/banners/default_banner.png';
+  const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
+  const bannerUrl = userInfo.banner || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_banner.png';
 
   const avatar = await loadImage(avatarUrl);
   const banner = await loadImage(bannerUrl);

@@ -51,15 +51,10 @@ app.get('/api/perfil', async (req, res) => {
   ctx.font = 'bold 20px Arial';
   ctx.fillText('Imagem de Perfil', 100, 200);
 
-  // Exemplo de uso do fetch (caso queira buscar dados de outra API):
-  // try {
-  //   const response = await fetch('https://exemplo.com/api/data');
-  //   const data = await response.json();
-  //   // Processar os dados recebidos aqui
-  // } catch (error) {
-  //   console.error('Erro ao buscar dados:', error);
-  // }
-  setTimeout(() => console.log(await getUserInfo('769969803526930504')), 10000);
+  if (req.query.json === 'true') {
+    const userInfo = await getUserInfo('769969803526930504');  // Substitua pelo ID correto
+    return res.json(userInfo);  // Retorna os dados em formato JSON
+  }
 
   res.setHeader('Content-Type', 'image/png');
   res.send(canvas.toBuffer('image/png'));

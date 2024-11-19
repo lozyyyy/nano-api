@@ -38,25 +38,20 @@ app.get('/api', (req, res) => {
   `);
 });
 
+const path = require('node:path');
+
 app.get('/api/perfil', async (req, res) => {
   const width = 800;
   const height = 400;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
-  // Obter informações do usuário usando o ID
-  const userInfo = await getUserInfo('769969803526930504');  // Substitua pelo ID correto
+  const userInfo = await getUserInfo('769969803526930504');
   const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
 
-  // Verificar se o usuário possui um banner, caso contrário, usar o banner base
-  let bannerUrl = './Bbanner';
+  let bannerUrl = userInfo.banner || path.join(__dirname, 'Bbanner.png');
 
-  // Tentar carregar o avatar e o banner
   let avatar, banner;
-  if (req.query.json === 'true') {
-    return res.json(userInfo);
-  }
-  
   try {
     avatar = await loadImage(avatarUrl);
   } catch (error) {
@@ -68,7 +63,7 @@ app.get('/api/perfil', async (req, res) => {
     banner = await loadImage(bannerUrl);
   } catch (error) {
     console.warn('Erro ao carregar o banner, usando o banner base.');
-    bannerUrl = './Bbase.png';  // Redefine para o banner base
+    bannerUrl = path.join(__dirname, 'Bbanner.png'); 
     try {
       banner = await loadImage(bannerUrl);
     } catch (err) {
@@ -77,14 +72,10 @@ app.get('/api/perfil', async (req, res) => {
     }
   }
 
-  // Desenhar o banner (metade superior)
   ctx.drawImage(banner, 0, 0, width, height / 2);
-
-  // Adicionar tema dark com fundo
-  ctx.fillStyle = '#1a1a1a'; // Cor de fundo dark
+  ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, height / 2, width, height / 2);
 
-  // Cortar o avatar para um círculo
   const avatarSize = 100;
   const avatarX = 50;
   const avatarY = (height / 2) - (avatarSize / 2);
@@ -97,19 +88,18 @@ app.get('/api/perfil', async (req, res) => {
   ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
   ctx.restore();
 
-  // Adicionar o nome do usuário
-  ctx.fillStyle = '#ffffff'; // Cor do texto
+  ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 24px Arial';
   ctx.fillText(userInfo.username, 180, height / 2 + 40);
 
-  // Adicionar "Sobre mim"
   const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
   ctx.font = '16px Arial';
   ctx.fillText(`Sobre mim: ${aboutMeText}`, 180, height / 2 + 70);
 
-  // Resposta em JSON se o parâmetro json=true estiver presente
-  
-  // Enviar a imagem como resposta
+  if (req.query.json === 'true') {
+    return res.json(userInfo);
+  }
+
   res.setHeader('Content-Type', 'image/png');
   res.send(canvas.toBuffer('image/png'));
 });

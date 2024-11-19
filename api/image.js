@@ -46,7 +46,7 @@ app.get('/api/perfil', async (req, res) => {
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
-  const userInfo = await getUserInfo('769969803526930504');
+  const userInfo = await getUserInfo('1159667835761594449');
   const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
 
   let bannerUrl = userInfo.banner || path.join(__dirname, 'Bbanner.png');

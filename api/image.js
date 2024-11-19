@@ -1,20 +1,59 @@
 const express = require('express');
-const { createCanvas } = require('canvas');
+const axios = require('axios');
+const { createCanvas, loadImage } = require('canvas');
 
 const app = express();
 
-app.get('/api/image', (req, res) => {
-  const width = 800;
-  const height = 600;
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Página Inicial</title>
+    </head>
+    <body>
+      <h1>Bem-vindo à API Nano</h1>
+      <p>Este é um exemplo simples de página inicial.</p>
+    </body>
+    </html>
+  `);
+});
+
+app.get('/api', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>API Nano</title>
+    </head>
+    <body>
+      <h1>API Nano</h1>
+      <p>Bem-vindo à API Nano! Use a rota <code>/api/perfil</code> para obter uma imagem de perfil.</p>
+    </body>
+    </html>
+  `);
+});
+
+app.get('/api/perfil', async (req, res) => {
+  const width = 400;
+  const height = 400;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#ffcc00';
+  ctx.fillStyle = '#f0f0f0';
   ctx.fillRect(0, 0, width, height);
 
-  ctx.fillStyle = '#000';
-  ctx.font = 'bold 30px Arial';
-  ctx.fillText('Hello from Canvas!', 50, 100);
+  ctx.fillStyle = '#333';
+  ctx.font = 'bold 20px Arial';
+  ctx.fillText('Imagem de Perfil', 100, 200);
+
+  // Você pode adicionar uma imagem personalizada usando loadImage
+  // const image = await loadImage('URL_DA_IMAGEM');
+  // ctx.drawImage(image, 0, 0, width, height);
 
   res.setHeader('Content-Type', 'image/png');
   res.send(canvas.toBuffer('image/png'));

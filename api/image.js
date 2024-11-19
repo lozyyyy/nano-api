@@ -51,7 +51,9 @@ app.get('/api/perfil', async (req, res) => {
     const height = 400;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
-
+    const fontPath = path.join(__dirname, 'fonts', 'arial.ttf');
+    ctx.registerFont(fontPath, { family: 'Arial' });
+    
     const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
     let bannerUrl = userInfo.banner || path.join(__dirname, 'Bbanner.png');
 
@@ -98,12 +100,12 @@ app.get('/api/perfil', async (req, res) => {
     // Sobre mim abaixo do avatar
     const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
     ctx.fillStyle = '#ffffff';
-    ctx.font = '28px sans-serif'; // Usando sans-serif
+    ctx.font = '24px Arial'; // Usando sans-serif
     ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX, avatarY + avatarSize + 20);
 
     // Nome do usuário à direita do avatar
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 48px sans-serif'; // Usando sans-serif em negrito
+    ctx.font = 'bold 24px Arial'; // Usando sans-serif em negrito
     ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
     // Exibir retângulos de informações abaixo do nome do usuário
@@ -129,7 +131,7 @@ app.get('/api/perfil', async (req, res) => {
 
       // Texto fora do retângulo
       ctx.fillStyle = '#ffffff';
-      ctx.font = '14px sans-serif';
+      ctx.font = '14px Arial';
       ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);
     });
 

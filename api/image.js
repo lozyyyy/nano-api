@@ -96,14 +96,43 @@ app.get('/api/perfil', async (req, res) => {
   ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
   ctx.restore();
 
-  // Nome do usuário alinhado à direita do avatar
+  // Sobre mim abaixo do avatar
+  const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '14px Arial';
+  ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX, avatarY + avatarSize + 20);
+
+  // Nome do usuário à direita do avatar
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 24px Arial';
-  ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 40);
+  ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
-  const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
-  ctx.font = '16px Arial';
-  ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX + avatarSize + 20, height / 2 + 70);
+  // Exibir retângulos de informações abaixo do nome do usuário
+  const infoStartX = avatarX + avatarSize + 20;
+  const infoStartY = height / 2 + 60;
+  const rectWidth = 100;
+  const rectHeight = 30;
+  const spacing = 10;
+
+  const infos = [
+    { label: 'Coins', value: userInfo.coins || 0 },
+    { label: 'Reps', value: userInfo.reps || 0 },
+    { label: 'Status', value: userInfo.married ? 'Casado(a)' : 'Solteiro(a)' }
+  ];
+
+  infos.forEach((info, index) => {
+    const rectX = infoStartX + (index * (rectWidth + spacing));
+    const rectY = infoStartY;
+
+    // Desenhar retângulo de informação
+    ctx.fillStyle = '#333';
+    ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+    // Texto no retângulo
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '14px Arial';
+    ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);
+  });
 
   if (req.query.json === 'true') {
     return res.json(userInfo);

@@ -49,7 +49,7 @@ app.get('/api/perfil', async (req, res) => {
   const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
 
   // Verificar se o usuário possui um banner, caso contrário, usar o banner base
-  let bannerUrl = './Bbanner.png';
+  let bannerUrl = './Bbanner';
 
   // Tentar carregar o avatar e o banner
   let avatar, banner;

@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('node:path');
-const { createCanvas, loadImage } = require('@napi-rs/canvas'); // Usando o @napi-rs/canvas
+const { createCanvas, loadImage, registerFont } = require('@napi-rs/canvas'); // Usando o @napi-rs/canvas
 const { getUserInfo } = require('../helpers/disav');
 
 const app = express();

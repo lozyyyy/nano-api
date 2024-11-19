@@ -1,5 +1,4 @@
 const express = require('express');
-const axios = require('axios');
 const { createCanvas, loadImage } = require('canvas');
 
 const app = express();
@@ -51,9 +50,14 @@ app.get('/api/perfil', async (req, res) => {
   ctx.font = 'bold 20px Arial';
   ctx.fillText('Imagem de Perfil', 100, 200);
 
-  // Você pode adicionar uma imagem personalizada usando loadImage
-  // const image = await loadImage('URL_DA_IMAGEM');
-  // ctx.drawImage(image, 0, 0, width, height);
+  // Exemplo de uso do fetch (caso queira buscar dados de outra API):
+  // try {
+  //   const response = await fetch('https://exemplo.com/api/data');
+  //   const data = await response.json();
+  //   // Processar os dados recebidos aqui
+  // } catch (error) {
+  //   console.error('Erro ao buscar dados:', error);
+  // }
 
   res.setHeader('Content-Type', 'image/png');
   res.send(canvas.toBuffer('image/png'));

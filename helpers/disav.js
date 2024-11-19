@@ -24,10 +24,8 @@ async function getUserInfo(userId) {
 
     // Retorna as informações relevantes
     return {
-      username: user.username,
-      discriminator: user.discriminator,
-      avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
-      id: user.id
+      avatarurl: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
+      user
     };
   } catch (error) {
     console.error('Erro ao obter informações do usuário:', error);

@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 /**
  * Função que retorna informações do usuário com base no ID do Discord.
  * @param {string} userId - ID do usuário no Discord.

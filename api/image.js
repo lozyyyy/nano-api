@@ -128,7 +128,7 @@ app.get('/api/perfil', async (req, res) => {
     ctx.fillStyle = '#333';
     ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
 
-    // Texto no retângulo
+    // Texto fora do retângulo
     ctx.fillStyle = '#ffffff';
     ctx.font = '14px Arial';
     ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);

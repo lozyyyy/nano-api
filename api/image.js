@@ -1,5 +1,7 @@
 const express = require('express');
 const { createCanvas, loadImage } = require('canvas');
+const { getUserInfo } = require('../helpers/disav');
+console.log(await getUserInfo('769969803526930504'));
 
 const app = express();
 

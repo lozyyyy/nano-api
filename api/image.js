@@ -49,10 +49,29 @@ app.get('/api/perfil', async (req, res) => {
   const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
 
   // Verificar se o usuário possui um banner, caso contrário, usar o banner base
-  const bannerUrl = './Bbanner.png';
+  let bannerUrl = './Bbase.png';
 
-  const avatar = await loadImage(avatarUrl);
-  const banner = await loadImage(bannerUrl);
+  // Tentar carregar o avatar e o banner
+  let avatar, banner;
+  try {
+    avatar = await loadImage(avatarUrl);
+  } catch (error) {
+    console.error('Erro ao carregar o avatar:', error);
+    return res.status(404).send('Avatar não encontrado.');
+  }
+
+  try {
+    banner = await loadImage(bannerUrl);
+  } catch (error) {
+    console.warn('Erro ao carregar o banner, usando o banner base.');
+    bannerUrl = './Bbase.png';  // Redefine para o banner base
+    try {
+      banner = await loadImage(bannerUrl);
+    } catch (err) {
+      console.error('Erro ao carregar o banner base:', err);
+      return res.status(404).send('Banner não encontrado.');
+    }
+  }
 
   // Desenhar o banner (metade superior)
   ctx.drawImage(banner, 0, 0, width, height / 2);

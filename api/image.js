@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('node:path');
-const { createCanvas, loadImage } = require('@napi-rs/canvas');
+const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
 const { getUserInfo } = require('../helpers/disav');
+GlobalFonts.registerFromPath(join(__dirname, '..', 'fonts', 'arial.ttf'), 'Arial');
 
 const app = express();
 

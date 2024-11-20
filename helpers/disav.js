@@ -35,4 +35,35 @@ async function getUserInfo(userId) {
   }
 }
 
-module.exports = { getUserInfo };
+/**
+ * Função que converte números grandes para uma forma abreviada, como 1k, 1M, etc.
+ * Aceita números até quintilhões.
+ * @param {number} value - Número que será abreviado.
+ * @param {number} [decimalPlaces=1] - Número de casas decimais a ser exibido após a abreviação.
+ * @returns {string} - Valor abreviado.
+ */
+function abbreviate(value, decimalPlaces = 1) {
+  const abbreviations = [
+    { value: 1e18, suffix: 'Q' },   // Quintilhão
+    { value: 1e15, suffix: 'T' },   // Trilhão
+    { value: 1e12, suffix: 'B' },   // Bilhão
+    { value: 1e9, suffix: 'M' },    // Milhão
+    { value: 1e6, suffix: 'K' },    // Mil
+    { value: 1e3, suffix: 'K' }     // Milhar
+  ];
+
+  // Se o número for menor que 1000, retorna o número original
+  if (value < 1000) return value.toString();
+
+  // Encontra o sufixo apropriado
+  for (let i = 0; i < abbreviations.length; i++) {
+    if (value >= abbreviations[i].value) {
+      const abbreviatedValue = (value / abbreviations[i].value).toFixed(decimalPlaces);
+      return `${abbreviatedValue}${abbreviations[i].suffix}`;
+    }
+  }
+
+  return value.toString(); // Retorna o número se nenhum sufixo for encontrado (não esperado)
+}
+
+module.exports = { getUserInfo, abbreviate };

@@ -84,40 +84,36 @@ app.get('/api/perfil', async (req, res) => {
     ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
     ctx.restore();
 
-    // Função para quebrar e centralizar o texto
+    // Função para quebrar texto com base no tamanho
     const wrapText = (ctx, text, x, y, maxWidth, lineHeight) => {
       const words = text.split(' ');
       let line = '';
-      let lineCount = 0;
-
       for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
         const metrics = ctx.measureText(testLine);
         const testWidth = metrics.width;
-
         if (testWidth > maxWidth && n > 0) {
-          ctx.fillText(line, x, y + (lineCount * lineHeight));
+          ctx.fillText(line, x, y);
           line = words[n] + ' ';
-          lineCount++;
+          y += lineHeight;
         } else {
           line = testLine;
         }
       }
-      ctx.fillText(line, x, y + (lineCount * lineHeight));
+      ctx.fillText(line, x, y);
     };
 
-    // "Sobre mim" com quebra de linha e centralizado
     const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
     ctx.fillStyle = '#ffffff';
     ctx.font = '14px Arial';
-    const textX = (width - 300) / 2; // Centraliza o texto
-    wrapText(ctx, `Sobre mim: ${aboutMeText}`, textX, avatarY + avatarSize + 20, 300, 20);
+    const aboutMeX = (width - 300) / 2;  // Centralizando
+    wrapText(ctx, `Sobre mim: ${aboutMeText}`, aboutMeX, avatarY + avatarSize + 20, 300, 20);
 
-    // Nome do usuário com fonte maior
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 30px Arial';
     ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
+    // Campos dinâmicos de informações (Coins, Reps, Status)
     const infoStartX = avatarX + avatarSize + 20;
     const infoStartY = height / 2 + 60;
     const rectHeight = 30;
@@ -130,9 +126,9 @@ app.get('/api/perfil', async (req, res) => {
     ];
 
     infos.forEach((info, index) => {
-      const labelWidth = ctx.measureText(info.label).width + 20;
-      const valueWidth = ctx.measureText(info.value.toString()).width + 20;
-      const rectWidth = Math.max(labelWidth, valueWidth); // Ajuste da largura
+      const text = `${info.label}: ${info.value}`;
+      const textWidth = ctx.measureText(text).width;  // Calculando a largura do texto
+      const rectWidth = textWidth + 20;  // Adicionando margem ao retângulo
 
       const rectX = infoStartX + (index * (rectWidth + spacing));
       const rectY = infoStartY;
@@ -142,7 +138,7 @@ app.get('/api/perfil', async (req, res) => {
 
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 18px Arial';
-      ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);
+      ctx.fillText(text, rectX + 10, rectY + 20);
     });
 
     if (req.query.json === 'true') {

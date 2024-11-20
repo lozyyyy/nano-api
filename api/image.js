@@ -185,7 +185,7 @@ app.get('/api/perfil', async (req, res) => {
     ctx.fillText(footerText, width - footerTextWidth - 20, height - 20);
 
     // Marca de Copyright
-    const copyrightText = `© 2024 [Seu Nome ou Empresa]`;
+    const copyrightText = `© 2024 Sam Bot`;
     ctx.font = '14px Arial';
     const copyrightTextWidth = ctx.measureText(copyrightText).width;
     ctx.fillText(copyrightText, width - copyrightTextWidth - 20, height - 40); // Coloca logo acima do "Criado em"

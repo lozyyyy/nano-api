@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('node:path');
 const { createCanvas, loadImage, registerFont } = require('canvas');
-const { getUserInfo } = require('../helpers/disav');
+const { getUserInfo, abbreviate } = require('../helpers/disav');
 registerFont(path.join(__dirname, 'fonts', 'arial.ttf'), { family: 'Arial' });
 
 const app = express();
@@ -42,8 +42,8 @@ app.get('/api', (req, res) => {
 
 app.get('/api/perfil', async (req, res) => {
   const userId = req.query.id || '1159667835761594449';  // ID do usuário, com valor padrão
-  const money = req.query.money || 0;  // Valor de coins, passado pela URL
-  const reps = req.query.reps || 0;   // Valor de reps, passado pela URL
+  const money = abbreviate(req.query.money) || 0;  // Valor de coins, passado pela URL
+  const reps = abbreviate(req.query.reps) || 0;   // Valor de reps, passado pela URL
   const status = req.query.status || 'Solteiro(a)';  // Status, passado pela URL
   const aboutMe = req.query.aboutMe || 'Sou um entusiasta\nem tecnologia.';  // Texto sobre o usuário, passado pela URL
 

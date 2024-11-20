@@ -85,32 +85,43 @@ app.get('/api/perfil', async (req, res) => {
     ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
     ctx.restore();
 
-    // Nome
+    // Nome (movido para a parte escura)
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 30px Arial';
     const nameX = avatarX + avatarSize + 20;
-    const nameY = avatarY + 40; // Ajustado para alinhar com o avatar
+    const nameY = avatarY + avatarSize / 2 + 20; // Movido para baixo
     ctx.fillText(userInfo.username, nameX, nameY);
 
-    // Campos de informações
-    const infoY = nameY + 40; // Abaixo do nome
-    ctx.font = '18px Arial';
-    const infos = [
-      `Coins: ${userInfo.coins || 0}`,
-      `Reps: ${userInfo.reps || 0}`,
-      `Status: ${userInfo.married ? 'Casado(a)' : 'Solteiro(a)'}`
-    ];
+    // Retângulos para Coins, Reps, Status
+    const infoY = nameY + 30; // Abaixo do nome
+    const rectWidth = 200;
+    const rectHeight = 40;
+    const rectPadding = 10;
 
-    infos.forEach((text, index) => {
-      ctx.fillText(text, nameX, infoY + index * 30); // Espaçamento vertical entre os campos
+    const infoLabels = ['Coins', 'Reps', 'Status'];
+    const infoValues = [`${userInfo.coins || 0}`, `${userInfo.reps || 0}`, `${userInfo.married ? 'Casado(a)' : 'Solteiro(a)'}`];
+
+    infoLabels.forEach((label, index) => {
+      // Desenha o retângulo de fundo
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fillRect(nameX, infoY + index * (rectHeight + rectPadding), rectWidth, rectHeight);
+
+      // Texto dentro do retângulo
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '18px Arial';
+      ctx.fillText(`${label}: ${infoValues[index]}`, nameX + 10, infoY + 25 + index * (rectHeight + rectPadding));
     });
 
-    // Sobre mim
-    const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
+    // Sobre mim com quebra de linha
+    const aboutMeText = userInfo.aboutMe || 'Sou um entusiasta em tecnologia e programação.';
     ctx.font = '14px Arial';
     const aboutMeX = avatarX;
-    const aboutMeY = avatarY + avatarSize + 30;
-    ctx.fillText(`Sobre mim: ${aboutMeText}`, aboutMeX, aboutMeY);
+    const aboutMeY = infoY + 3 * (rectHeight + rectPadding) + 20; // Abaixo dos campos
+
+    const lines = wrapText(aboutMeText, 30); // Função que divide o texto em várias linhas
+    lines.forEach((line, index) => {
+      ctx.fillText(line, aboutMeX, aboutMeY + index * 20);
+    });
 
     if (req.query.json === 'true') {
       return res.json(userInfo);
@@ -123,5 +134,27 @@ app.get('/api/perfil', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
+
+// Função que quebra o texto em várias linhas de acordo com o comprimento
+function wrapText(text, maxLength) {
+  const lines = [];
+  const words = text.split(' ');
+  let currentLine = '';
+
+  words.forEach(word => {
+    if ((currentLine + word).length > maxLength) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine += (currentLine ? ' ' : '') + word;
+    }
+  });
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines;
+}
 
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

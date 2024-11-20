@@ -53,7 +53,7 @@ function abbreviate(value, decimalPlaces = 1) {
   ];
 
   // Se o número for menor que 1000, retorna o número original
-  if (value < 1000) return value.toString();
+  if (value < 1000) return value;
 
   // Encontra o sufixo apropriado
   for (let i = 0; i < abbreviations.length; i++) {

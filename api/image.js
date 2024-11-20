@@ -1,56 +1,81 @@
 const express = require('express');
 const path = require('node:path');
-const { Jimp } = require('jimp');
+const { createCanvas, loadImage } = require('@napi-rs/canvas');
 const { getUserInfo } = require('../helpers/disav');
 
 const app = express();
 
 app.get('/api/perfil', async (req, res) => {
-  const userId = req.query.id || '1159667835761594449';
-  const money = req.query.money || 0;
+  const userId = req.query.id || '1159667835761594449'; // ID padrão se não fornecido
+  const money = req.query.money || 0; // Valor padrão se não fornecido
 
   try {
     const userInfo = await getUserInfo(userId);
-    userInfo.coins = money;
+    userInfo.coins = money; // Atualiza o valor de coins baseado no parâmetro
 
     const width = 800;
     const height = 400;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
 
     const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
     let bannerUrl = userInfo.banner || path.join(__dirname, 'Bbanner.png');
 
-    const canvas = await Jimp.create(width, height); // Cria uma imagem vazia
-canvas.color([{ apply: 'mix', params: ['#1a1a1a', 100] }]); // Define a cor de fundo como #1a1a1a
-
-    let banner = await Jimp.read(bannerUrl).catch(() => {
-      console.warn('Erro ao carregar o banner, usando o banner base.');
-      return Jimp.read(path.join(__dirname, 'Bbanner.png'));
-    });
-
-    let avatar = await Jimp.read(avatarUrl).catch(() => {
+    // Carregar avatar
+    const avatar = await loadImage(avatarUrl).catch(() => {
       console.error('Erro ao carregar o avatar.');
       return null;
+    });
+
+    // Carregar banner
+    let banner = await loadImage(bannerUrl).catch(() => {
+      console.warn('Erro ao carregar o banner, usando o banner base.');
+      return loadImage(path.join(__dirname, 'Bbanner.png'));
     });
 
     if (!avatar || !banner) {
       return res.status(404).send('Avatar ou Banner não encontrado.');
     }
 
-    banner.resize(width, height / 2);
-    canvas.composite(banner, 0, 0);
+    ctx.drawImage(banner, 0, 0, width, height / 2);
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, height / 2, width, height / 2);
 
-    avatar.resize(130, 130);
-    const avatarCircle = avatar.clone().circle();
-
+    const avatarSize = 130;
     const avatarX = 40;
-    const avatarY = (height / 2) - (avatar.bitmap.height / 2);
-    canvas.composite(avatarCircle, avatarX, avatarY);
+    const avatarY = (height / 2) - (avatarSize / 2);
 
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
-    const fontSmall = await Jimp.loadFont(Jimp.FONT_SANS_16_WHITE);
+    // Desenhar um círculo maior para simular a borda
+    ctx.beginPath();
+    ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, (avatarSize / 2) + 10, 0, Math.PI * 2);
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fill();
 
-    canvas.print(font, avatarX, avatarY + avatar.bitmap.height + 10, `Sobre mim: ${userInfo.aboutMe || 'Entusiasta de tecnologia e programação.'}`, 720);
-    canvas.print(font, avatarX + avatar.bitmap.width + 20, height / 2 + 10, userInfo.username);
+    // Desenhar o avatar
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+    ctx.restore();
+
+    // Sobre mim abaixo do avatar
+    const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '24px sans-serif'; // Usando uma fonte padrão
+    ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX, avatarY + avatarSize + 20);
+
+    // Nome do usuário à direita do avatar
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 24px sans-serif'; // Usando uma fonte padrão em negrito
+ ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
+
+    // Exibir retângulos de informações abaixo do nome do usuário
+    const infoStartX = avatarX + avatarSize + 20;
+    const infoStartY = height / 2 + 60;
+    const rectWidth = 100;
+    const rectHeight = 30;
+    const spacing = 10;
 
     const infos = [
       { label: 'Coins', value: userInfo.coins || 0 },
@@ -58,19 +83,18 @@ canvas.color([{ apply: 'mix', params: ['#1a1a1a', 100] }]); // Define a cor de f
       { label: 'Status', value: userInfo.married ? 'Casado(a)' : 'Solteiro(a)' }
     ];
 
-    const infoStartX = avatarX + avatar.bitmap.width + 20;
-    const infoStartY = height / 2 + 50;
-    const rectWidth = 150;
-    const rectHeight = 50;
-    const spacing = 10;
-
     infos.forEach((info, index) => {
       const rectX = infoStartX + (index * (rectWidth + spacing));
       const rectY = infoStartY;
 
-      const rect = new Jimp(rectWidth, rectHeight, '#333333');
-      rect.print(fontSmall, 10, 10, `${info.label}: ${info.value}`);
-      canvas.composite(rect, rectX, rectY);
+      // Desenhar retângulo de informação
+      ctx.fillStyle = '#333';
+      ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+      // Texto fora do retângulo
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '14px sans-serif';
+      ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);
     });
 
     if (req.query.json === 'true') {
@@ -78,8 +102,7 @@ canvas.color([{ apply: 'mix', params: ['#1a1a1a', 100] }]); // Define a cor de f
     }
 
     res.setHeader('Content-Type', 'image/png');
-    const buffer = await canvas.getBufferAsync(Jimp.MIME_PNG);
-    res.send(buffer);
+    res.send(canvas.toBuffer('image/png'));
   } catch (error) {
     console.error('Erro ao gerar perfil:', error);
     res.status(500).send('Erro interno do servidor.');

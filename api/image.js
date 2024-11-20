@@ -49,7 +49,7 @@ app.get('/api/perfil', async (req, res) => {
     userInfo.coins = money;
 
     const width = 800;
-    const height = 400;
+    const height = 450; // Aumentado para acomodar mais conteúdo
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
@@ -107,7 +107,7 @@ app.get('/api/perfil', async (req, res) => {
     ctx.fillStyle = '#ffffff';
     ctx.font = '14px Arial';
     const aboutMeX = (width - 300) / 2;  // Centralizando
-    wrapText(ctx, `Sobre mim: ${aboutMeText}`, aboutMeX, avatarY + avatarSize + 20, 300, 20);
+    wrapText(ctx, `Sobre mim: ${aboutMeText}`, aboutMeX, avatarY + avatarSize + 30, 300, 20);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 30px Arial';
@@ -115,9 +115,9 @@ app.get('/api/perfil', async (req, res) => {
 
     // Campos dinâmicos de informações (Coins, Reps, Status)
     const infoStartX = avatarX + avatarSize + 20;
-    const infoStartY = height / 2 + 60;
+    const infoStartY = height / 2 + 90; // Aumentado o espaço entre "Sobre mim" e os campos
     const rectHeight = 30;
-    const spacing = 10;
+    const spacing = 20; // Maior espaçamento entre os campos
 
     const infos = [
       { label: 'Coins', value: userInfo.coins || 0 },

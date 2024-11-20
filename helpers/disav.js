@@ -49,11 +49,11 @@ function abbreviate(value, decimalPlaces = 1) {
   }
 
   const abbreviations = [
-    { value: 1e18, suffix: 'Q' },   // Quintilhão
-    { value: 1e15, suffix: 'T' },   // Trilhão
-    { value: 1e12, suffix: 'B' },   // Bilhão
-    { value: 1e9, suffix: 'M' },    // Milhão
-    { value: 1e6, suffix: 'K' },    // Mil
+    { value: 1e18, suffix: 'QQ' },   // Quintilhão
+    { value: 1e15, suffix: 'Q' },   // Quatrilhão
+    { value: 1e12, suffix: 'T' },   // Trilhão
+    { value: 1e9, suffix: 'B' },    // bilhão
+    { value: 1e6, suffix: 'M' },    // Milhão 
     { value: 1e3, suffix: 'K' }     // Milhar
   ];
 

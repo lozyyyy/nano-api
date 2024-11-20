@@ -62,12 +62,12 @@ app.get('/api/perfil', async (req, res) => {
     // Sobre mim abaixo do avatar
     const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
     ctx.fillStyle = '#ffffff';
-    ctx.font = '24px sans-serif'; // Usando uma fonte padrão
+    ctx.font = '24px Arial, sans-serif'; // Usando uma fonte padrão
     ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX, avatarY + avatarSize + 20);
 
     // Nome do usuário à direita do avatar
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px sans-serif'; // Usando uma fonte padrão em negrito
+    ctx.font = 'bold 24px Arial, sans-serif'; // Usando uma fonte padrão em negrito
  ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
     // Exibir retângulos de informações abaixo do nome do usuário
@@ -93,7 +93,7 @@ app.get('/api/perfil', async (req, res) => {
 
       // Texto fora do retângulo
       ctx.fillStyle = '#ffffff';
-      ctx.font = '14px sans-serif';
+      ctx.font = '14px Arial, sans-serif';
       ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);
     });
 

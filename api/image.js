@@ -49,7 +49,7 @@ app.get('/api/perfil', async (req, res) => {
     userInfo.coins = money;
 
     const width = 800;
-    const height = 400; // Ajuste na altura
+    const height = 450; // Dimensão do canvas
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
@@ -68,10 +68,10 @@ app.get('/api/perfil', async (req, res) => {
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(0, height / 2, width, height / 2);
 
-    // Avatar (centralizado)
-    const avatarSize = 150;
-    const avatarX = (width - avatarSize) / 2;
-    const avatarY = (height / 4) - (avatarSize / 2);
+    // Avatar
+    const avatarSize = 130;
+    const avatarX = 40;
+    const avatarY = (height / 2) - (avatarSize / 2);
 
     ctx.beginPath();
     ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, (avatarSize / 2) + 10, 0, Math.PI * 2);
@@ -85,41 +85,32 @@ app.get('/api/perfil', async (req, res) => {
     ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
     ctx.restore();
 
-    // Nome de usuário
+    // Nome
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 28px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(userInfo.username, width / 2, height / 2 + 20);
+    ctx.font = 'bold 30px Arial';
+    const nameX = avatarX + avatarSize + 20;
+    const nameY = avatarY + 40; // Ajustado para alinhar com o avatar
+    ctx.fillText(userInfo.username, nameX, nameY);
 
-    // Sobre mim (centralizado)
-    const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
-    ctx.font = '16px Arial';
-    const aboutMeY = height / 2 + 50;
-    const aboutMeWidth = 600;
-    wrapText(ctx, aboutMeText, (width - aboutMeWidth) / 2, aboutMeY, aboutMeWidth, 22);
-
-    // Informações (Coins, Reps, Status)
-    const infoStartY = height - 50;
-    const infoSpacing = 10;
-    const infoWidth = 180; // Largura fixa para os retângulos
-    const rectHeight = 35;
-
+    // Campos de informações
+    const infoY = nameY + 40; // Abaixo do nome
+    ctx.font = '18px Arial';
     const infos = [
-      { label: 'Coins', value: userInfo.coins || 0 },
-      { label: 'Reps', value: userInfo.reps || 0 },
-      { label: 'Status', value: userInfo.married ? 'Casado(a)' : 'Solteiro(a)' },
+      `Coins: ${userInfo.coins || 0}`,
+      `Reps: ${userInfo.reps || 0}`,
+      `Status: ${userInfo.married ? 'Casado(a)' : 'Solteiro(a)'}`
     ];
 
-    infos.forEach((info, index) => {
-      const rectX = (width / 2) - ((infos.length * infoWidth) + (infos.length - 1) * infoSpacing) / 2 + index * (infoWidth + infoSpacing);
-      ctx.fillStyle = '#333';
-      ctx.fillRect(rectX, infoStartY, infoWidth, rectHeight);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 16px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(`${info.label}: ${info.value}`, rectX + infoWidth / 2, infoStartY + 22);
+    infos.forEach((text, index) => {
+      ctx.fillText(text, nameX, infoY + index * 30); // Espaçamento vertical entre os campos
     });
+
+    // Sobre mim
+    const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
+    ctx.font = '14px Arial';
+    const aboutMeX = avatarX;
+    const aboutMeY = avatarY + avatarSize + 30;
+    ctx.fillText(`Sobre mim: ${aboutMeText}`, aboutMeX, aboutMeY);
 
     if (req.query.json === 'true') {
       return res.json(userInfo);
@@ -132,24 +123,5 @@ app.get('/api/perfil', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
-
-// Função para quebra de texto
-const wrapText = (ctx, text, x, y, maxWidth, lineHeight) => {
-  const words = text.split(' ');
-  let line = '';
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + ' ';
-    const metrics = ctx.measureText(testLine);
-    const testWidth = metrics.width;
-    if (testWidth > maxWidth && n > 0) {
-      ctx.fillText(line, x, y);
-      line = words[n] + ' ';
-      y += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  ctx.fillText(line, x, y);
-};
 
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

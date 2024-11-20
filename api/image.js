@@ -42,6 +42,7 @@ app.get('/api', (req, res) => {
 
 app.get('/api/perfil', async (req, res) => {
   const userId = req.query.id || '1159667835761594449';
+  
   const money = req.query.money || 0;
 
   try {

@@ -42,8 +42,11 @@ app.get('/api', (req, res) => {
 
 app.get('/api/perfil', async (req, res) => {
   const userId = req.query.id || '1159667835761594449';  // ID do usuário, com valor padrão
-  const money = abbreviate(req.query.money) || 0;  // Valor de coins, passado pela URL
-  const reps = abbreviate(req.query.reps) || 0;   // Valor de reps, passado pela URL
+  
+  // Valor de coins e reps, usando a função abbreviate
+  const money = req.query.money ? abbreviate(Number(req.query.money)) : '0';  
+  const reps = req.query.reps ? abbreviate(Number(req.query.reps)) : '0';   
+  
   const status = req.query.status || 'Solteiro(a)';  // Status, passado pela URL
   const aboutMe = req.query.aboutMe || 'Sou um entusiasta\nem tecnologia.';  // Texto sobre o usuário, passado pela URL
 

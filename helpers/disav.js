@@ -50,11 +50,11 @@ function abbreviate(value, decimalPlaces = 1) {
 
   const abbreviations = [
     { value: 1e18, suffix: 'QQ' },   // Quintilhão
-    { value: 1e15, suffix: 'Q' },   // Quatrilhão
-    { value: 1e12, suffix: 'T' },   // Trilhão
-    { value: 1e9, suffix: 'B' },    // bilhão
-    { value: 1e6, suffix: 'M' },    // Milhão 
-    { value: 1e3, suffix: 'K' }     // Milhar
+    { value: 1e15, suffix: 'Q' },    // Quatrilhão
+    { value: 1e12, suffix: 'T' },    // Trilhão
+    { value: 1e9, suffix: 'B' },     // bilhão
+    { value: 1e6, suffix: 'M' },     // Milhão 
+    { value: 1e3, suffix: 'K' }      // Milhar
   ];
 
   // Se o número for menor que 1000, retorna o número original
@@ -63,6 +63,7 @@ function abbreviate(value, decimalPlaces = 1) {
   // Encontra o sufixo apropriado
   for (let i = 0; i < abbreviations.length; i++) {
     if (value >= abbreviations[i].value) {
+      // Use toFixed() apenas se o valor for superior ao limite do sufixo
       const abbreviatedValue = (value / abbreviations[i].value).toFixed(decimalPlaces);
       return `${abbreviatedValue}${abbreviations[i].suffix}`;
     }

@@ -1,18 +1,18 @@
 const express = require('express');
-const path = require('node:path');
-const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
+const path = require('path');
+const { createCanvas, loadImage, registerFont } = require('canvas');
 const { getUserInfo } = require('../helpers/disav');
-GlobalFonts.registerFromPath(path.join(__dirname, '..', 'fonts', 'arial.ttf'), 'Arial');
+registerFont(path.join(__dirname, '..', 'fonts', 'arial.ttf'), { family: 'Arial' });
 
 const app = express();
 
 app.get('/api/perfil', async (req, res) => {
-  const userId = req.query.id || '1159667835761594449'; // ID padrão se não fornecido
-  const money = req.query.money || 0; // Valor padrão se não fornecido
+  const userId = req.query.id || '1159667835761594449';
+  const money = req.query.money || 0;
 
   try {
     const userInfo = await getUserInfo(userId);
-    userInfo.coins = money; // Atualiza o valor de coins baseado no parâmetro
+    userInfo.coins = money;
 
     const width = 800;
     const height = 400;
@@ -22,17 +22,8 @@ app.get('/api/perfil', async (req, res) => {
     const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
     let bannerUrl = userInfo.banner || path.join(__dirname, 'Bbanner.png');
 
-    // Carregar avatar
-    const avatar = await loadImage(avatarUrl).catch(() => {
-      console.error('Erro ao carregar o avatar.');
-      return null;
-    });
-
-    // Carregar banner
-    let banner = await loadImage(bannerUrl).catch(() => {
-      console.warn('Erro ao carregar o banner, usando o banner base.');
-      return loadImage(path.join(__dirname, 'Bbanner.png'));
-    });
+    const avatar = await loadImage(avatarUrl).catch(() => null);
+    const banner = await loadImage(bannerUrl).catch(() => loadImage(path.join(__dirname, 'Bbanner.png')));
 
     if (!avatar || !banner) {
       return res.status(404).send('Avatar ou Banner não encontrado.');
@@ -46,13 +37,11 @@ app.get('/api/perfil', async (req, res) => {
     const avatarX = 40;
     const avatarY = (height / 2) - (avatarSize / 2);
 
-    // Desenhar um círculo maior para simular a borda
     ctx.beginPath();
     ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, (avatarSize / 2) + 10, 0, Math.PI * 2);
     ctx.fillStyle = '#1a1a1a';
     ctx.fill();
 
-    // Desenhar o avatar
     ctx.save();
     ctx.beginPath();
     ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
@@ -60,18 +49,15 @@ app.get('/api/perfil', async (req, res) => {
     ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
     ctx.restore();
 
-    // Sobre mim abaixo do avatar
     const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
     ctx.fillStyle = '#ffffff';
-    ctx.font = '24px Arial'; // Usando uma fonte padrão
+    ctx.font = '24px Arial';
     ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX, avatarY + avatarSize + 20);
 
-    // Nome do usuário à direita do avatar
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px Arial'; // Usando uma fonte padrão em negrito
- ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
+    ctx.font = 'bold 24px Arial';
+    ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
-    // Exibir retângulos de informações abaixo do nome do usuário
     const infoStartX = avatarX + avatarSize + 20;
     const infoStartY = height / 2 + 60;
     const rectWidth = 100;
@@ -88,11 +74,9 @@ app.get('/api/perfil', async (req, res) => {
       const rectX = infoStartX + (index * (rectWidth + spacing));
       const rectY = infoStartY;
 
-      // Desenhar retângulo de informação
       ctx.fillStyle = '#333';
       ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
 
-      // Texto fora do retângulo
       ctx.fillStyle = '#ffffff';
       ctx.font = '14px Arial';
       ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);
@@ -103,7 +87,7 @@ app.get('/api/perfil', async (req, res) => {
     }
 
     res.setHeader('Content-Type', 'image/png');
-    res.send(canvas.toBuffer('image/png'));
+    res.send(canvas.toBuffer());
   } catch (error) {
     console.error('Erro ao gerar perfil:', error);
     res.status(500).send('Erro interno do servidor.');

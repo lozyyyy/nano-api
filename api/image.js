@@ -1,12 +1,9 @@
 const express = require('express');
 const path = require('node:path');
-const { createCanvas, loadImage, registerFont } = require('@napi-rs/canvas'); // Usando o @napi-rs/canvas
+const { createCanvas, loadImage } = require('@napi-rs/canvas');
 const { getUser Info } = require('../helpers/disav');
 
 const app = express();
-
-// Registre a fonte Arial
-registerFont(path.join(__dirname, 'arial.ttf'), { family: 'Arial' });
 
 app.get('/api/perfil', async (req, res) => {
   const userId = req.query.id || '1159667835761594449'; // ID padrão se não fornecido
@@ -44,7 +41,6 @@ app.get('/api/perfil', async (req, res) => {
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(0, height / 2, width, height / 2);
 
-    // Ajuste do tamanho do avatar e simulação da borda com círculo
     const avatarSize = 130;
     const avatarX = 40;
     const avatarY = (height / 2) - (avatarSize / 2);
@@ -55,25 +51,24 @@ app.get('/api/perfil', async (req, res) => {
     ctx.fillStyle = '#1a1a1a';
     ctx.fill();
 
-    // Desenhar o avatar sobre o círculo para que pareça uma borda
+    // Desenhar o avatar
     ctx.save();
     ctx.beginPath();
-    ctx .arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+    ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
     ctx.clip();
-
     ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
     ctx.restore();
 
     // Sobre mim abaixo do avatar
     const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
     ctx.fillStyle = '#ffffff';
-    ctx.font = '24px "Arial"'; // Usando a fonte registrada
+    ctx.font = '24px sans-serif'; // Usando uma fonte padrão
     ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX, avatarY + avatarSize + 20);
 
     // Nome do usuário à direita do avatar
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px "Arial"'; // Usando a fonte registrada em negrito
-    ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
+    ctx.font = 'bold 24px sans-serif'; // Usando uma fonte padrão em negrito
+ ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
     // Exibir retângulos de informações abaixo do nome do usuário
     const infoStartX = avatarX + avatarSize + 20;
@@ -98,7 +93,7 @@ app.get('/api/perfil', async (req, res) => {
 
       // Texto fora do retângulo
       ctx.fillStyle = '#ffffff';
-      ctx.font = '14px "Arial"';
+      ctx.font = '14px sans-serif';
       ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);
     });
 
@@ -114,4 +109,4 @@ app.get('/api/perfil', async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log('API is running on http://localhost:3000')); 
+app.listen(3000, () => console.log('API is running on http://localhost:3000'));

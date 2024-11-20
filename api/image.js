@@ -92,14 +92,18 @@ app.get('/api/perfil', async (req, res) => {
     const nameY = avatarY + avatarSize / 2 + 30;
     ctx.fillText(userInfo.username, nameX, nameY);
 
-    // Retângulos para Coins e Reps (lado a lado)
+    // Retângulos para Coins, Reps e Status (lado a lado)
     const infoY = nameY + 30;
     const rectWidth = 120;
     const rectHeight = 40;
     const rectPadding = 10;
 
-    const infoLabels = ['Coins', 'Reps'];
-    const infoValues = [`${userInfo.coins || 0}`, `${userInfo.reps || 0}`];
+    const infoLabels = ['Coins', 'Reps', 'Status'];
+    const infoValues = [
+      `${userInfo.coins || 0}`,
+      `${userInfo.reps || 0}`,
+      userInfo.married ? `Casado(a)` : 'Solteiro(a)'
+    ];
 
     infoLabels.forEach((label, index) => {
       const rectX = nameX + (index * (rectWidth + rectPadding));
@@ -112,31 +116,38 @@ app.get('/api/perfil', async (req, res) => {
     });
 
     // Retângulo "Sobre mim"
+    const aboutMeRectWidth = 350;
+    const aboutMeRectX = nameX;
     const aboutMeRectY = infoY + rectHeight + rectPadding * 2;
-    const aboutMeRectHeight = 100;
+    const aboutMeRectHeight = 80;
     ctx.fillStyle = '#2a2a2a';
-    ctx.fillRect(nameX, aboutMeRectY, width - nameX - 40, aboutMeRectHeight);
+    ctx.fillRect(aboutMeRectX, aboutMeRectY, aboutMeRectWidth, aboutMeRectHeight);
 
-    // Label "Sobre mim"
+    // Label "Sobre mim" (alinhado ao top-middle do retângulo)
     ctx.fillStyle = '#ffffff';
-    ctx.font = '18px Arial';
-    ctx.fillText('Sobre mim:', nameX + 10, aboutMeRectY + 20);
+    ctx.font = 'bold 18px Arial';
+    const labelText = 'Sobre mim';
+    const labelTextWidth = ctx.measureText(labelText).width;
+    ctx.fillText(
+      labelText,
+      aboutMeRectX + (aboutMeRectWidth - labelTextWidth) / 2,
+      aboutMeRectY + 20
+    );
 
     // Texto "Sobre mim"
     const aboutMeText = userInfo.aboutMe || 'Sou um entusiasta\nem tecnologia.';
     const aboutMeLines = aboutMeText.split('\n');
+    ctx.font = '16px Arial';
     aboutMeLines.forEach((line, index) => {
-      ctx.fillText(line, nameX + 10, aboutMeRectY + 40 + index * 20);
+      ctx.fillText(line, aboutMeRectX + 10, aboutMeRectY + 40 + index * 20);
     });
 
-    // Status no canto inferior direito
-    const statusText = userInfo.married
-      ? `Casado(a) com ${userInfo.spouse}`
-      : 'Solteiro(a)';
+    // Rodapé: "Criado em <data atual>"
+    const footerText = `Criado em ${new Date().toLocaleDateString()}`;
     ctx.fillStyle = '#ffffff';
-    ctx.font = '18px Arial';
-    const statusTextWidth = ctx.measureText(statusText).width;
-    ctx.fillText(statusText, width - statusTextWidth - 20, height - 20);
+    ctx.font = '16px Arial';
+    const footerTextWidth = ctx.measureText(footerText).width;
+    ctx.fillText(footerText, width - footerTextWidth - 20, height - 20);
 
     if (req.query.json === 'true') {
       return res.json(userInfo);

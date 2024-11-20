@@ -42,7 +42,6 @@ app.get('/api', (req, res) => {
 
 app.get('/api/perfil', async (req, res) => {
   const userId = req.query.id || '1159667835761594449';
-  
   const money = req.query.money || 0;
 
   try {
@@ -59,9 +58,12 @@ app.get('/api/perfil', async (req, res) => {
 
     const avatar = await loadImage(avatarUrl).catch(() => null);
     const banner = await loadImage(bannerUrl).catch(() => loadImage(path.join(__dirname, 'Bbanner.png')));
+    const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
+    const repsIcon = await loadImage(path.join(__dirname, 'icons/reps.png'));
+    const statusIcon = await loadImage(path.join(__dirname, 'icons/status.png'));
 
-    if (!avatar || !banner) {
-      return res.status(404).send('Avatar ou Banner não encontrado.');
+    if (!avatar || !banner || !coinsIcon || !repsIcon || !statusIcon) {
+      return res.status(404).send('Avatar, Banner ou Ícones não encontrados.');
     }
 
     // Fundo e banner
@@ -93,12 +95,13 @@ app.get('/api/perfil', async (req, res) => {
     const nameY = avatarY + avatarSize / 2 + 30;
     ctx.fillText(userInfo.username, nameX, nameY);
 
-    // Coins, Reps e Status (com tamanhos dinâmicos)
+    // Coins, Reps e Status (com imagens)
     const infoY = nameY + 30;
+    const iconSize = 30; // Tamanho dos ícones
     const rectHeight = 40;
     const rectPadding = 10;
 
-    const infoLabels = ['Coins', 'Reps', 'Status'];
+    const infoImages = [coinsIcon, repsIcon, statusIcon];
     const infoValues = [
       `${userInfo.coins || 0}`,
       `${userInfo.reps || 0}`,
@@ -106,15 +109,19 @@ app.get('/api/perfil', async (req, res) => {
     ];
 
     let currentX = nameX;
-    infoLabels.forEach((label, index) => {
-      const content = `${label}: ${infoValues[index]}`;
-      const rectWidth = ctx.measureText(content).width + 20; // Adiciona padding ao texto
+    infoImages.forEach((icon, index) => {
+      const text = infoValues[index];
+      const rectWidth = ctx.measureText(text).width + iconSize + 20; // Espaço para o texto e o ícone
       ctx.fillStyle = '#2a2a2a';
       ctx.fillRect(currentX, infoY, rectWidth, rectHeight);
 
+      // Desenhar o ícone
+      ctx.drawImage(icon, currentX + 5, infoY + (rectHeight - iconSize) / 2, iconSize, iconSize);
+
+      // Desenhar o texto
       ctx.fillStyle = '#ffffff';
       ctx.font = '18px Arial';
-      ctx.fillText(content, currentX + 10, infoY + 25);
+      ctx.fillText(text, currentX + iconSize + 10, infoY + 25);
 
       currentX += rectWidth + rectPadding; // Atualiza a posição para o próximo campo
     });
@@ -127,7 +134,7 @@ app.get('/api/perfil', async (req, res) => {
     ctx.fillStyle = '#2a2a2a';
     ctx.fillRect(aboutMeRectX, aboutMeRectY, aboutMeRectWidth, aboutMeRectHeight);
 
-    // Label "Sobre mim" (alinhado ao top-middle do retângulo)
+    // Label "Sobre mim"
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 18px Arial';
     const labelText = 'Sobre mim';

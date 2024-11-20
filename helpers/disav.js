@@ -43,6 +43,11 @@ async function getUserInfo(userId) {
  * @returns {string} - Valor abreviado.
  */
 function abbreviate(value, decimalPlaces = 1) {
+  // Certifique-se de que o valor seja um número
+  if (isNaN(value)) {
+    throw new Error("O valor fornecido não é um número válido.");
+  }
+
   const abbreviations = [
     { value: 1e18, suffix: 'Q' },   // Quintilhão
     { value: 1e15, suffix: 'T' },   // Trilhão
@@ -53,7 +58,7 @@ function abbreviate(value, decimalPlaces = 1) {
   ];
 
   // Se o número for menor que 1000, retorna o número original
-  if (value < 1000) return value;
+  if (value < 1000) return value.toString();
 
   // Encontra o sufixo apropriado
   for (let i = 0; i < abbreviations.length; i++) {
@@ -63,7 +68,8 @@ function abbreviate(value, decimalPlaces = 1) {
     }
   }
 
-  return value.toString(); // Retorna o número se nenhum sufixo for encontrado (não esperado)
+  // Se nenhum sufixo foi encontrado, converte o valor diretamente
+  return value.toString();
 }
 
 module.exports = { getUserInfo, abbreviate };

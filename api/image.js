@@ -19,7 +19,8 @@ app.get('/api/perfil', async (req, res) => {
     const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
     let bannerUrl = userInfo.banner || path.join(__dirname, 'Bbanner.png');
 
-    const canvas = await new Jimp(width, height, '#1a1a1a');
+    const canvas = await Jimp.create(width, height); // Cria uma imagem vazia
+canvas.color([{ apply: 'mix', params: ['#1a1a1a', 100] }]); // Define a cor de fundo como #1a1a1a
 
     let banner = await Jimp.read(bannerUrl).catch(() => {
       console.warn('Erro ao carregar o banner, usando o banner base.');

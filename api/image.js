@@ -104,7 +104,7 @@ app.get('/api/perfil', async (req, res) => {
 
     // Nome do usuário à direita do avatar
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px Arial'; // Usando sans-serif em negrito
+    ctx.font = '24px Arial'; // Usando sans-serif em negrito
     ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
     // Exibir retângulos de informações abaixo do nome do usuário

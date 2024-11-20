@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 app.get('/api', (req, res) => {
   res.send(`
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="pt-BR">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,7 +34,23 @@ app.get('/api', (req, res) => {
     </head>
     <body>
       <h1>API Nano</h1>
-      <p>Bem-vindo à API Nano! Use a rota <code>/api/perfil</code> para obter uma imagem de perfil.</p>
+      <p>Bem-vindo à API Nano! Abaixo estão as rotas e parâmetros disponíveis:</p>
+      <h2>Rota: <code>/api/perfil</code></h2>
+      <p>Esta rota gera uma imagem de perfil personalizada com base nos parâmetros fornecidos.</p>
+      <h3>Parâmetros disponíveis:</h3>
+      <ul>
+        <li><strong>id</strong>: (opcional) O ID do usuário. Se não fornecido, será usado o ID padrão '1159667835761594449'.</li>
+        <li><strong>money</strong>: (opcional) O valor de coins do usuário, que será abreviado (por exemplo, 2000 vira 2k). Se não fornecido, o valor será 0.</li>
+        <li><strong>reps</strong>: (opcional) O valor de reputações (reps) do usuário, que também será abreviado. Se não fornecido, o valor será 0.</li>
+        <li><strong>status</strong>: (opcional) O status do usuário, como 'Solteiro(a)', 'Casado(a)', etc. O valor padrão é 'Solteiro(a)'.</li>
+        <li><strong>aboutMe</strong>: (opcional) Texto sobre o usuário. O valor padrão é 'Sou um entusiasta\nem tecnologia.'</li>
+        <li><strong>json</strong>: (opcional) Se definido como 'true', a resposta será no formato JSON, contendo as informações do usuário. Caso contrário, será gerada uma imagem de perfil em formato PNG.</li>
+      </ul>
+      <p>Exemplo de uso:</p>
+      <ul>
+        <li><code>/api/perfil?id=123456789&money=1000&reps=50&status=Casado(a)&aboutMe=Adoro programar</code> - Gera uma imagem de perfil com as informações fornecidas.</li>
+        <li><code>/api/perfil?json=true&id=123456789</code> - Retorna as informações do perfil em formato JSON.</li>
+      </ul>
     </body>
     </html>
   `);

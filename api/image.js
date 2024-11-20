@@ -1,5 +1,5 @@
 const express = require('express');
-const path = require('nodr:path');
+const path = require('node:path');
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const { getUserInfo } = require('../helpers/disav');
 registerFont(path.join(__dirname, '..', 'fonts', 'arial.ttf'), { family: 'Arial' });

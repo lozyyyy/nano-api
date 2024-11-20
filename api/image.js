@@ -84,10 +84,11 @@ app.get('/api/perfil', async (req, res) => {
     ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
     ctx.restore();
 
-    // Função para quebra de linha
+    // Função para quebrar e centralizar o texto
     const wrapText = (ctx, text, x, y, maxWidth, lineHeight) => {
       const words = text.split(' ');
       let line = '';
+      let lineCount = 0;
 
       for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
@@ -95,29 +96,28 @@ app.get('/api/perfil', async (req, res) => {
         const testWidth = metrics.width;
 
         if (testWidth > maxWidth && n > 0) {
-          ctx.fillText(line, x, y);
+          ctx.fillText(line, x, y + (lineCount * lineHeight));
           line = words[n] + ' ';
-          y += lineHeight;
+          lineCount++;
         } else {
           line = testLine;
         }
       }
-      ctx.fillText(line, x, y);
+      ctx.fillText(line, x, y + (lineCount * lineHeight));
     };
 
-    // "Sobre mim" centralizado
+    // "Sobre mim" com quebra de linha e centralizado
     const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
-    const aboutMeX = width / 2 - 150;  // Centralizando o texto
     ctx.fillStyle = '#ffffff';
     ctx.font = '14px Arial';
-    wrapText(ctx, `Sobre mim: ${aboutMeText}`, aboutMeX, avatarY + avatarSize + 20, 300, 20);
+    const textX = (width - 300) / 2; // Centraliza o texto
+    wrapText(ctx, `Sobre mim: ${aboutMeText}`, textX, avatarY + avatarSize + 20, 300, 20);
 
     // Nome do usuário com fonte maior
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 30px Arial';
     ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
-    // Ajuste dinâmico para os campos Coins, Reps e Status
     const infoStartX = avatarX + avatarSize + 20;
     const infoStartY = height / 2 + 60;
     const rectHeight = 30;
@@ -130,9 +130,9 @@ app.get('/api/perfil', async (req, res) => {
     ];
 
     infos.forEach((info, index) => {
-      const labelWidth = ctx.measureText(info.label).width;
-      const valueWidth = ctx.measureText(info.value).width;
-      const rectWidth = labelWidth + valueWidth + 30;  // Ajusta o tamanho do retângulo com base no conteúdo
+      const labelWidth = ctx.measureText(info.label).width + 20;
+      const valueWidth = ctx.measureText(info.value.toString()).width + 20;
+      const rectWidth = Math.max(labelWidth, valueWidth); // Ajuste da largura
 
       const rectX = infoStartX + (index * (rectWidth + spacing));
       const rectY = infoStartY;

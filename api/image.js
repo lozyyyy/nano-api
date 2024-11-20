@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('node:path');
-const Jimp = require('jimp');
+const { Jimp } = require('jimp');
 const { getUserInfo } = require('../helpers/disav');
 
 const app = express();

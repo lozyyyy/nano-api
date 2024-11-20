@@ -92,9 +92,8 @@ app.get('/api/perfil', async (req, res) => {
     const nameY = avatarY + avatarSize / 2 + 30;
     ctx.fillText(userInfo.username, nameX, nameY);
 
-    // Retângulos para Coins, Reps e Status (lado a lado)
+    // Coins, Reps e Status (com tamanhos dinâmicos)
     const infoY = nameY + 30;
-    const rectWidth = 120;
     const rectHeight = 40;
     const rectPadding = 10;
 
@@ -105,21 +104,25 @@ app.get('/api/perfil', async (req, res) => {
       userInfo.married ? `Casado(a)` : 'Solteiro(a)'
     ];
 
+    let currentX = nameX;
     infoLabels.forEach((label, index) => {
-      const rectX = nameX + (index * (rectWidth + rectPadding));
+      const content = `${label}: ${infoValues[index]}`;
+      const rectWidth = ctx.measureText(content).width + 20; // Adiciona padding ao texto
       ctx.fillStyle = '#2a2a2a';
-      ctx.fillRect(rectX, infoY, rectWidth, rectHeight);
+      ctx.fillRect(currentX, infoY, rectWidth, rectHeight);
 
       ctx.fillStyle = '#ffffff';
       ctx.font = '18px Arial';
-      ctx.fillText(`${label}: ${infoValues[index]}`, rectX + 10, infoY + 25);
+      ctx.fillText(content, currentX + 10, infoY + 25);
+
+      currentX += rectWidth + rectPadding; // Atualiza a posição para o próximo campo
     });
 
     // Retângulo "Sobre mim"
     const aboutMeRectWidth = 350;
     const aboutMeRectX = nameX;
     const aboutMeRectY = infoY + rectHeight + rectPadding * 2;
-    const aboutMeRectHeight = 80;
+    const aboutMeRectHeight = 100;
     ctx.fillStyle = '#2a2a2a';
     ctx.fillRect(aboutMeRectX, aboutMeRectY, aboutMeRectWidth, aboutMeRectHeight);
 
@@ -134,12 +137,22 @@ app.get('/api/perfil', async (req, res) => {
       aboutMeRectY + 20
     );
 
-    // Texto "Sobre mim"
+    // Texto "Sobre mim" centralizado
     const aboutMeText = userInfo.aboutMe || 'Sou um entusiasta\nem tecnologia.';
     const aboutMeLines = aboutMeText.split('\n');
+    const lineHeight = 20;
+
+    const totalTextHeight = aboutMeLines.length * lineHeight;
+    const startY = aboutMeRectY + (aboutMeRectHeight - totalTextHeight) / 2 + lineHeight;
+
     ctx.font = '16px Arial';
     aboutMeLines.forEach((line, index) => {
-      ctx.fillText(line, aboutMeRectX + 10, aboutMeRectY + 40 + index * 20);
+      const lineWidth = ctx.measureText(line).width;
+      ctx.fillText(
+        line,
+        aboutMeRectX + (aboutMeRectWidth - lineWidth) / 2,
+        startY + index * lineHeight
+      );
     });
 
     // Rodapé: "Criado em <data atual>"

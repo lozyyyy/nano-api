@@ -41,12 +41,18 @@ app.get('/api', (req, res) => {
 });
 
 app.get('/api/perfil', async (req, res) => {
-  const userId = req.query.id || '1159667835761594449';
-  const money = req.query.money || 0;
+  const userId = req.query.id || '1159667835761594449';  // ID do usuário, com valor padrão
+  const money = req.query.money || 0;  // Valor de coins, passado pela URL
+  const reps = req.query.reps || 0;   // Valor de reps, passado pela URL
+  const status = req.query.status || 'Solteiro(a)';  // Status, passado pela URL
+  const aboutMe = req.query.aboutMe || 'Sou um entusiasta\nem tecnologia.';  // Texto sobre o usuário, passado pela URL
 
   try {
     const userInfo = await getUserInfo(userId);
     userInfo.coins = money;
+    userInfo.reps = reps;
+    userInfo.status = status;
+    userInfo.aboutMe = aboutMe;
 
     const width = 800;
     const height = 450;
@@ -105,7 +111,7 @@ app.get('/api/perfil', async (req, res) => {
     const infoValues = [
       `${userInfo.coins || 0}`,
       `${userInfo.reps || 0}`,
-      userInfo.married ? `Casado(a)` : 'Solteiro(a)'
+      userInfo.status || 'Solteiro(a)'
     ];
 
     let currentX = nameX;
@@ -146,8 +152,7 @@ app.get('/api/perfil', async (req, res) => {
     );
 
     // Texto "Sobre mim" centralizado
-    const aboutMeText = userInfo.aboutMe || 'Sou um entusiasta\nem tecnologia.';
-    const aboutMeLines = aboutMeText.split('\n');
+    const aboutMeLines = aboutMe.split('\n');
     const lineHeight = 20;
 
     const totalTextHeight = aboutMeLines.length * lineHeight;
@@ -164,11 +169,23 @@ app.get('/api/perfil', async (req, res) => {
     });
 
     // Rodapé: "Criado em <data atual>"
-    const footerText = `Criado em ${new Date().toLocaleDateString()}`;
+    const footerText = `Criado em ${new Date().toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })}`;
     ctx.fillStyle = '#ffffff';
     ctx.font = '16px Arial';
     const footerTextWidth = ctx.measureText(footerText).width;
     ctx.fillText(footerText, width - footerTextWidth - 20, height - 20);
+
+    // Marca de Copyright
+    const copyrightText = `© 2024 [Seu Nome ou Empresa]`;
+    ctx.font = '14px Arial';
+    const copyrightTextWidth = ctx.measureText(copyrightText).width;
+    ctx.fillText(copyrightText, width - copyrightTextWidth - 20, height - 40); // Coloca logo acima do "Criado em"
 
     if (req.query.json === 'true') {
       return res.json(userInfo);

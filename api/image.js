@@ -10,7 +10,7 @@ app.get('/api/perfil', async (req, res) => {
   const money = req.query.money || 0; // Valor padrão se não fornecido
 
   try {
-    const userInfo = await getUser Info(userId);
+    const userInfo = await getUserInfo(userId);
     userInfo.coins = money; // Atualiza o valor de coins baseado no parâmetro
 
     const width = 800;

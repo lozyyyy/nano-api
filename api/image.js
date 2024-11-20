@@ -49,7 +49,7 @@ app.get('/api/perfil', async (req, res) => {
     userInfo.coins = money;
 
     const width = 800;
-    const height = 450; // Dimensão do canvas
+    const height = 450;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
@@ -85,43 +85,58 @@ app.get('/api/perfil', async (req, res) => {
     ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
     ctx.restore();
 
-    // Nome (movido para a parte escura)
+    // Nome
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 30px Arial';
     const nameX = avatarX + avatarSize + 20;
-    const nameY = avatarY + avatarSize / 2 + 20; // Movido para baixo
+    const nameY = avatarY + avatarSize / 2 + 30;
     ctx.fillText(userInfo.username, nameX, nameY);
 
-    // Retângulos para Coins, Reps, Status
-    const infoY = nameY + 30; // Abaixo do nome
-    const rectWidth = 200;
+    // Retângulos para Coins e Reps (lado a lado)
+    const infoY = nameY + 30;
+    const rectWidth = 120;
     const rectHeight = 40;
     const rectPadding = 10;
 
-    const infoLabels = ['Coins', 'Reps', 'Status'];
-    const infoValues = [`${userInfo.coins || 0}`, `${userInfo.reps || 0}`, `${userInfo.married ? 'Casado(a)' : 'Solteiro(a)'}`];
+    const infoLabels = ['Coins', 'Reps'];
+    const infoValues = [`${userInfo.coins || 0}`, `${userInfo.reps || 0}`];
 
     infoLabels.forEach((label, index) => {
-      // Desenha o retângulo de fundo
+      const rectX = nameX + (index * (rectWidth + rectPadding));
       ctx.fillStyle = '#2a2a2a';
-      ctx.fillRect(nameX, infoY + index * (rectHeight + rectPadding), rectWidth, rectHeight);
+      ctx.fillRect(rectX, infoY, rectWidth, rectHeight);
 
-      // Texto dentro do retângulo
       ctx.fillStyle = '#ffffff';
       ctx.font = '18px Arial';
-      ctx.fillText(`${label}: ${infoValues[index]}`, nameX + 10, infoY + 25 + index * (rectHeight + rectPadding));
+      ctx.fillText(`${label}: ${infoValues[index]}`, rectX + 10, infoY + 25);
     });
 
-    // Sobre mim com quebra de linha
-    const aboutMeText = userInfo.aboutMe || 'Sou um entusiasta em tecnologia e programação.';
-    ctx.font = '14px Arial';
-    const aboutMeX = avatarX;
-    const aboutMeY = infoY + 3 * (rectHeight + rectPadding) + 20; // Abaixo dos campos
+    // Retângulo "Sobre mim"
+    const aboutMeRectY = infoY + rectHeight + rectPadding * 2;
+    const aboutMeRectHeight = 100;
+    ctx.fillStyle = '#2a2a2a';
+    ctx.fillRect(nameX, aboutMeRectY, width - nameX - 40, aboutMeRectHeight);
 
-    const lines = wrapText(aboutMeText, 30); // Função que divide o texto em várias linhas
-    lines.forEach((line, index) => {
-      ctx.fillText(line, aboutMeX, aboutMeY + index * 20);
+    // Label "Sobre mim"
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '18px Arial';
+    ctx.fillText('Sobre mim:', nameX + 10, aboutMeRectY + 20);
+
+    // Texto "Sobre mim"
+    const aboutMeText = userInfo.aboutMe || 'Sou um entusiasta\nem tecnologia.';
+    const aboutMeLines = aboutMeText.split('\n');
+    aboutMeLines.forEach((line, index) => {
+      ctx.fillText(line, nameX + 10, aboutMeRectY + 40 + index * 20);
     });
+
+    // Status no canto inferior direito
+    const statusText = userInfo.married
+      ? `Casado(a) com ${userInfo.spouse}`
+      : 'Solteiro(a)';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '18px Arial';
+    const statusTextWidth = ctx.measureText(statusText).width;
+    ctx.fillText(statusText, width - statusTextWidth - 20, height - 20);
 
     if (req.query.json === 'true') {
       return res.json(userInfo);
@@ -134,8 +149,6 @@ app.get('/api/perfil', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
-
-// Função que quebra o texto em várias linhas de acordo com o comprimento
 function wrapText(text, maxLength) {
   const lines = [];
   const words = text.split(' ');

@@ -1,58 +1,26 @@
 const express = require('express');
 const path = require('node:path');
-const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas'); // Usando o @napi-rs/canvas
-const { getUserInfo } = require('../helpers/disav');
+const { createCanvas, loadImage, registerFont } = require('@napi-rs/canvas'); // Usando o @napi-rs/canvas
+const { getUser Info } = require('../helpers/disav');
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Página Inicial</title>
-    </head>
-    <body>
-      <h1>Bem-vindo à API Nano</h1>
-      <p>Este é um exemplo simples de página inicial.</p>
-    </body>
-    </html>
-  `);
-});
-
-app.get('/api', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>API Nano</title>
-    </head>
-    <body>
-      <h1>API Nano</h1>
-      <p>Bem-vindo à API Nano! Use a rota <code>/api/perfil</code> para obter uma imagem de perfil.</p>
-    </body>
-    </html>
-  `);
-});
+// Registre a fonte Arial
+registerFont(path.join(__dirname, 'arial.ttf'), { family: 'Arial' });
 
 app.get('/api/perfil', async (req, res) => {
   const userId = req.query.id || '1159667835761594449'; // ID padrão se não fornecido
   const money = req.query.money || 0; // Valor padrão se não fornecido
 
   try {
-    const userInfo = await getUserInfo(userId);
+    const userInfo = await getUser Info(userId);
     userInfo.coins = money; // Atualiza o valor de coins baseado no parâmetro
 
     const width = 800;
     const height = 400;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
-    console.log(GlobalFonts.families);
-    
+
     const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
     let bannerUrl = userInfo.banner || path.join(__dirname, 'Bbanner.png');
 
@@ -90,7 +58,7 @@ app.get('/api/perfil', async (req, res) => {
     // Desenhar o avatar sobre o círculo para que pareça uma borda
     ctx.save();
     ctx.beginPath();
-    ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+    ctx .arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
     ctx.clip();
 
     ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
@@ -99,12 +67,12 @@ app.get('/api/perfil', async (req, res) => {
     // Sobre mim abaixo do avatar
     const aboutMeText = userInfo.aboutMe || 'Entusiasta de tecnologia e programação.';
     ctx.fillStyle = '#ffffff';
-    ctx.font = '24px Arial'; // Usando sans-serif
+    ctx.font = '24px "Arial"'; // Usando a fonte registrada
     ctx.fillText(`Sobre mim: ${aboutMeText}`, avatarX, avatarY + avatarSize + 20);
 
     // Nome do usuário à direita do avatar
     ctx.fillStyle = '#ffffff';
-    ctx.font = '24px Arial'; // Usando sans-serif em negrito
+    ctx.font = 'bold 24px "Arial"'; // Usando a fonte registrada em negrito
     ctx.fillText(userInfo.username, avatarX + avatarSize + 20, height / 2 + 30);
 
     // Exibir retângulos de informações abaixo do nome do usuário
@@ -130,7 +98,7 @@ app.get('/api/perfil', async (req, res) => {
 
       // Texto fora do retângulo
       ctx.fillStyle = '#ffffff';
-      ctx.font = '14px Arial';
+      ctx.font = '14px "Arial"';
       ctx.fillText(`${info.label}: ${info.value}`, rectX + 10, rectY + 20);
     });
 
@@ -146,4 +114,4 @@ app.get('/api/perfil', async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log('API is running on http://localhost:3000'));
+app.listen(3000, () => console.log('API is running on http://localhost:3000')); 

@@ -273,7 +273,7 @@ app.get('/api/rank', async (req, res) => {
    const userInfoList = await Promise.all(
      sortedUsers.map(async (user) => {
        try {
-         const userInfo = await getUser Info(user.id);
+         const userInfo = await getUserInfo(user.id);
          if (!userInfo || !userInfo.username || !userInfo.avatar) {
            return null;
          }

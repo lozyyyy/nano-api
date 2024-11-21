@@ -57,14 +57,13 @@ app.get('/api', (req, res) => {
 });
 
 app.get('/api/perfil', async (req, res) => {
-  const userId = req.query.id || '1159667835761594449';  // ID do usuário, com valor padrão
+  const userId = req.query.id || '1159667835761594449';
   
-  // Valor de coins e reps, usando a função abbreviate
   const money = req.query.money ? abbreviate(Number(req.query.money)) : '0';  
   const reps = req.query.reps ? abbreviate(Number(req.query.reps)) : '0';   
   
-  const status = req.query.status || 'Solteiro(a)';  // Status, passado pela URL
-  const aboutMe = req.query.aboutMe || 'Sou um entusiasta\nem tecnologia.';  // Texto sobre o usuário, passado pela URL
+  const status = req.query.status || 'Solteiro(a)';
+  const aboutMe = req.query.aboutMe || 'Sou um entusiasta\nem tecnologia.';
 
   try {
     const userInfo = await getUserInfo(userId);
@@ -237,5 +236,85 @@ function wrapText(text, maxLength) {
 
   return lines;
 }
+
+app.get('/api/rank', async (req, res) => {
+  const maxUsers = 10; // Número máximo de usuários a exibir no ranking
+  const users = [
+    { id: '1', username: 'UserOne', coins: 1500, reps: 20, status: 'Casado(a)' },
+    { id: '2', username: 'UserTwo', coins: 1400, reps: 15, status: 'Solteiro(a)' },
+    { id: '3', username: 'UserThree', coins: 1200, reps: 25, status: 'Namorando' },
+    { id: '4', username: 'UserFour', coins: 1000, reps: 10, status: 'Complicado' },
+    // Adicione mais usuários conforme necessário
+  ];
+
+  // Ordenar por número de moedas (coins)
+  const sortedUsers = users.sort((a, b) => b.coins - a.coins).slice(0, maxUsers);
+
+  // Checar se a saída deve ser JSON
+  if (req.query.json === 'true') {
+    return res.json(sortedUsers);
+  }
+
+  // Gerar imagem do ranking
+  try {
+    const width = 800;
+    const height = 600;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+
+    // Fundo
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, width, height);
+
+    // Título
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 30px Arial';
+    ctx.fillText('Ranking de Usuários', width / 2 - ctx.measureText('Ranking de Usuários').width / 2, 50);
+
+    // Desenhar tabela do ranking
+    const startY = 100;
+    const rowHeight = 50;
+    sortedUsers.forEach((user, index) => {
+      const y = startY + index * rowHeight;
+
+      ctx.fillStyle = index % 2 === 0 ? '#2a2a2a' : '#1f1f1f';
+      ctx.fillRect(50, y, width - 100, rowHeight);
+
+      // Índice
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 20px Arial';
+      ctx.fillText(`#${index + 1}`, 70, y + rowHeight / 2 + 8);
+
+      // Nome do Usuário
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '18px Arial';
+      ctx.fillText(user.username, 120, y + rowHeight / 2 + 8);
+
+      // Moedas
+      ctx.fillStyle = '#ffd700';
+      ctx.fillText(`Coins: ${abbreviate(user.coins)}`, 350, y + rowHeight / 2 + 8);
+
+      // Reputações
+      ctx.fillStyle = '#00ff00';
+      ctx.fillText(`Reps: ${abbreviate(user.reps)}`, 500, y + rowHeight / 2 + 8);
+
+      // Status
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`Status: ${user.status}`, 650, y + rowHeight / 2 + 8);
+    });
+
+    // Rodapé
+    const footerText = `Ranking atualizado em ${new Date().toLocaleString('pt-BR')}`;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '16px Arial';
+    ctx.fillText(footerText, 50, height - 20);
+
+    res.setHeader('Content-Type', 'image/png');
+    res.send(canvas.toBuffer('image/png'));
+  } catch (error) {
+    console.error('Erro ao gerar ranking:', error);
+    res.status(500).send('Erro interno do servidor.');
+  }
+});
 
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

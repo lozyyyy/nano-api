@@ -245,97 +245,97 @@ async function drawAvatar(ctx, avatarUrl, x, y, size) {
   }
 }
 app.get('/api/rank', async (req, res) => {
- const dataParam = req.query.data;
- if (!dataParam) {
-   return res.status(400).send('Parâmetro "data" é obrigatório.');
- }
+  const dataParam = req.query.data;
+  if (!dataParam) {
+    return res.status(400).send('Parâmetro "data" é obrigatório.');
+  }
 
- const userEntries = dataParam.split(',').map(entry => {
-   const [id, coins] = entry.split(':');
-   return { id, coins: Number(coins) };
- });
+  const userEntries = dataParam.split(',').map(entry => {
+    const [id, coins] = entry.split(':');
+    return { id, coins: Number(coins) };
+  });
 
- const maxUsers = 10;
- const sortedUsers = userEntries
-   .sort((a, b) => b.coins - a.coins)
-   .slice(0, maxUsers);
+  const maxUsers = 10;
+  const sortedUsers = userEntries
+    .sort((a, b) => b.coins - a.coins)
+    .slice(0, maxUsers);
 
- try {
-   const width = 720;
-   const height = 576;
-   const canvas = createCanvas(width, height);
-   const ctx = canvas.getContext('2d');
+  try {
+    const width = 720;
+    const height = 640; // Ajustado para incluir espaço inferior
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
 
-   // Carregando a imagem de fundo
-   const background = await loadImage(path.join(__dirname, 'perfil.png'));
-   ctx.drawImage(background, 0, 0, width, height);
+    // Carregando a imagem de fundo redimensionada
+    const background = await loadImage(path.join(__dirname, 'perfil.png'));
+    ctx.drawImage(background, 0, 0, width, height);
 
-   const userInfoList = await Promise.all(
-     sortedUsers.map(async (user) => {
-       try {
-         const userInfo = await getUserInfo(user.id);
-         if (!userInfo || !userInfo.username || !userInfo.avatar) {
-           return null;
-         }
-         return { ...userInfo, coins: abbreviate(user.coins) };
-       } catch (error) {
-         return null;
-       }
-     })
-   );
+    // Novas posições ajustadas
+    const positions = [
+      { x: 85, y: 90 },  { x: 85, y: 155 }, { x: 85, y: 220 },
+      { x: 85, y: 285 }, { x: 85, y: 350 }, { x: 445, y: 90 },
+      { x: 445, y: 155 }, { x: 445, y: 220 }, { x: 445, y: 285 },
+      { x: 445, y: 350 },
+    ];
 
-   // Coordenadas ajustadas
-  const positions = [
-  { x: 85, y: 80 },  { x: 85, y: 142 }, { x: 85, y: 204 },
-  { x: 85, y: 266 }, { x: 85, y: 328 }, { x: 445, y: 80 },
-  { x: 445, y: 142 }, { x: 445, y: 204 }, { x: 445, y: 266 },
-  { x: 445, y: 328 },
-];
+    const avatarSize = 50;
+    const iconSize = 24;
+    const avatarOffset = 15; // Espaçamento entre avatar e nome
+    const coinsOffset = 8; // Espaçamento entre ícone de moedas e número de moedas
 
-const avatarSize = 50;
-const iconSize = 24;
-const avatarOffset = 15; // Espaçamento entre avatar e nome
-const coinsOffset = 8; // Espaçamento entre ícone de moedas e número de moedas
+    const userInfoList = await Promise.all(
+      sortedUsers.map(async (user) => {
+        try {
+          const userInfo = await getUserInfo(user.id);
+          if (!userInfo || !userInfo.username || !userInfo.avatar) {
+            return null;
+          }
+          return { ...userInfo, coins: abbreviate(user.coins) };
+        } catch (error) {
+          return null;
+        }
+      })
+    );
 
-   for (let i = 0; i < positions.length; i++) {
-     const user = userInfoList[i];
-     if (user) {
-       const { x, y } = positions[i];
+    for (let i = 0; i < positions.length; i++) {
+      const user = userInfoList[i];
+      if (user) {
+        const { x, y } = positions[i];
 
-       // Desenhando o avatar
-       await drawAvatar(ctx, user.avatar, x, y, avatarSize);
+        // Desenhando o avatar
+        await drawAvatar(ctx, user.avatar, x, y, avatarSize);
 
-       // Configurando estilos de texto
-       ctx.fillStyle = '#ffffff';
-       ctx.font = 'bold 18px Arial';
-       ctx.fillText(user.username, x + avatarSize + avatarOffset, y + 20);
+        // Configurando estilos de texto
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px Arial';
+        ctx.fillText(user.username, x + avatarSize + avatarOffset, y + 20);
 
-       // Ícone e texto de moedas
-       const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
-       const iconX = x + avatarSize + avatarOffset;
-       const iconY = y + 30;
+        // Ícone e texto de moedas
+        const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
+        const iconX = x + avatarSize + avatarOffset;
+        const iconY = y + 30;
 
-       if (coinsIcon) {
-         ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
-       }
+        if (coinsIcon) {
+          ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
+        }
 
-       ctx.font = '16px Arial';
-       ctx.fillText(user.coins, iconX + iconSize + coinsOffset, iconY + 18);
-     }
-   }
+        ctx.font = '16px Arial';
+        ctx.fillText(user.coins, iconX + iconSize + coinsOffset, iconY + 18);
+      }
+    }
 
-   // Centralizando o título "Ranking Global"
-   ctx.fillStyle = '#ffffff';
-   ctx.font = 'bold 24px Arial';
-   const title = 'Ranking Global';
-   const titleWidth = ctx.measureText(title).width;
-   ctx.fillText(title, (width - titleWidth) / 2, 50); // Centralizando na parte superior
+    // Centralizando o título "Ranking Global"
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 24px Arial';
+    const title = 'Ranking Global';
+    const titleWidth = ctx.measureText(title).width;
+    ctx.fillText(title, (width - titleWidth) / 2, 50); // Centralizando na parte superior
 
-   res.setHeader('Content-Type', 'image/png');
-   res.send(canvas.toBuffer('image/png'));
- } catch (error) {
-   console.error('Erro ao gerar ranking:', error);
-   res.status(500).send('Erro interno do servidor.');
- }
+    res.setHeader('Content-Type', 'image/png');
+    res.send(canvas.toBuffer('image/png'));
+  } catch (error) {
+    console.error('Erro ao gerar ranking:', error);
+    res.status(500).send('Erro interno do servidor.');
+  }
 });
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

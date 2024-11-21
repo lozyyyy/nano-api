@@ -271,19 +271,19 @@ app.get('/api/rank', async (req, res) => {
     ctx.drawImage(background, 0, 0, width, height);
 
     const positions = [
-  { x: 85, y: 220 },  // 1º item
-  { x: 85, y: 305 },  // 2º item
-  { x: 85, y: 390 },  // 3º item
-  { x: 85, y: 477 },  // 4º item
-  { x: 85, y: 564 },  // 5º item
-  { x: 445, y: 220 }, // 6º item
-  { x: 445, y: 305 }, // 7º item
-  { x: 445, y: 390 }, // 8º item
-  { x: 445, y: 477 }, // 9º item
-  { x: 445, y: 564 }, // 10º item
-];
+      { x: 85, y: 220 },  // 1º item
+      { x: 85, y: 305 },  // 2º item
+      { x: 85, y: 390 },  // 3º item
+      { x: 85, y: 477 },  // 4º item
+      { x: 85, y: 564 },  // 5º item
+      { x: 445, y: 220 }, // 6º item
+      { x: 445, y: 305 }, // 7º item
+      { x: 445, y: 390 }, // 8º item
+      { x: 445, y: 477 }, // 9º item
+      { x: 445, y: 564 }, // 10º item
+    ];
 
-    const avatarSize = 50;
+    const avatarSize = 50; // Tamanho do avatar
     const iconSize = 24;
     const avatarOffset = 15; // Espaçamento entre avatar e nome
     const coinsOffset = 8; // Espaçamento entre ícone de moedas e número de moedas
@@ -307,12 +307,18 @@ app.get('/api/rank', async (req, res) => {
       if (user) {
         const { x, y } = positions[i];
 
-        // Desenhando o avatar
-        await drawAvatar(ctx, user.avatar, x, y, avatarSize);
+        // Desenhando o avatar redondo
+        const avatar = await loadImage(user.avatar);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x + avatarSize / 2, y + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(avatar, x, y, avatarSize, avatarSize);
+        ctx.restore();
 
-        // Configurando estilos de texto
+        // Configurando estilos de texto (aumentado tamanho da fonte)
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 18px Arial';
+        ctx.font = 'bold 24px Arial'; // Aumentado o tamanho da fonte
         ctx.fillText(user.username, x + avatarSize + avatarOffset, y + 20);
 
         // Ícone e texto de moedas
@@ -324,17 +330,10 @@ app.get('/api/rank', async (req, res) => {
           ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
         }
 
-        ctx.font = '16px Arial';
+        ctx.font = '20px Arial'; // Aumentado o tamanho da fonte
         ctx.fillText(user.coins, iconX + iconSize + coinsOffset, iconY + 18);
       }
     }
-
-    // Centralizando o título "Ranking Global"
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px Arial';
-    const title = 'Ranking Global';
-    const titleWidth = ctx.measureText(title).width;
-    ctx.fillText(title, (width - titleWidth) / 2, 50); // Centralizando na parte superior
 
     res.setHeader('Content-Type', 'image/png');
     res.send(canvas.toBuffer('image/png'));

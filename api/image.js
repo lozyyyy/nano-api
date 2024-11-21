@@ -284,6 +284,21 @@ app.get('/api/rank', async (req, res) => {
       })
     );
 
+    // Função assíncrona para carregar e desenhar o avatar
+    const drawAvatar = async (ctx, avatarUrl, x, y, size) => {
+      try {
+        const avatar = await loadImage(avatarUrl);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(avatar, x, y, size, size);
+        ctx.restore();
+      } catch (error) {
+        console.error('Erro ao carregar avatar:', error);
+      }
+    };
+
     // Headers do ranking
     ctx.font = 'bold 20px Arial';
     ctx.fillText('Posição', 20, 100);
@@ -294,7 +309,7 @@ app.get('/api/rank', async (req, res) => {
     const iconSize = 20;
     let validIndex = 0; // Índice de posição válida no ranking
 
-    userInfoList.forEach((user, index) => {
+    for (const [index, user] of userInfoList.entries()) {
       if (user) {
         const y = 140 + validIndex * rowHeight;
 
@@ -306,17 +321,7 @@ app.get('/api/rank', async (req, res) => {
         // Avatar do usuário
         const avatarX = 80;
         const avatarY = y;
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
-        ctx.clip();
-
-        const avatar = await loadImage(user.avatar);
-        if (avatar) {
-          ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
-        }
-
-        ctx.restore();
+        await drawAvatar(ctx, user.avatar, avatarX, avatarY, avatarSize);
 
         // Nome do usuário
         ctx.fillStyle = '#ffffff';
@@ -340,7 +345,7 @@ app.get('/api/rank', async (req, res) => {
         // Incrementa o índice apenas se o usuário foi válido
         validIndex++;
       }
-    });
+    }
 
     // Marca de Copyright no rodapé
     const footerText = '© 2024 Sam Bot';

@@ -236,7 +236,14 @@ function wrapText(text, maxLength) {
 
   return lines;
 }
-
+async function drawAvatar(ctx, avatarUrl, x, y, size) {
+  try {
+    const avatarImage = await loadImage(avatarUrl);
+    ctx.drawImage(avatarImage, x, y, size, size);
+  } catch (error) {
+    console.error('Erro ao carregar avatar:', error);
+  }
+}
 app.get('/api/rank', async (req, res) => {
   const dataParam = req.query.data;
   if (!dataParam) {

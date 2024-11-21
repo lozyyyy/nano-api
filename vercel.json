@@ -18,6 +18,10 @@
     {
       "src": "/api/perfil",
       "dest": "/api/image.js"
+    },
+    {
+      "src": "/api/rank",
+      "dest": "/api/image.js"
     }
   ]
 }

@@ -270,18 +270,17 @@ app.get('/api/rank', async (req, res) => {
     const background = await loadImage(path.join(__dirname, 'perfil.png'));
     ctx.drawImage(background, 0, 0, width, height);
 
-    // Novas posições ajustadas
     const positions = [
-  { x: 85, y: 160 + 70 },  // 1º item
-  { x: 85, y: 205 + 70 },  // 2º item
-  { x: 85, y: 270 + 70 },  // 3º item
-  { x: 85, y: 335 + 70 },  // 4º item
-  { x: 85, y: 400 + 70 },  // 5º item
-  { x: 445, y: 140 + 70 }, // 6º item
-  { x: 445, y: 205 + 70 }, // 7º item
-  { x: 445, y: 270 + 70 }, // 8º item
-  { x: 445, y: 335 + 70 }, // 9º item
-  { x: 445, y: 400 + 70 }, // 10º item
+  { x: 85, y: 230 },  // 1º item
+  { x: 85, y: 275 },  // 2º item
+  { x: 85, y: 340 },  // 3º item
+  { x: 85, y: 405 },  // 4º item
+  { x: 85, y: 470 },  // 5º item
+  { x: 445, y: 210 }, // 6º item
+  { x: 445, y: 275 }, // 7º item
+  { x: 445, y: 340 }, // 8º item
+  { x: 445, y: 405 }, // 9º item
+  { x: 445, y: 470 }, // 10º item
 ];
 
     const avatarSize = 50;

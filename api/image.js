@@ -272,12 +272,12 @@ app.get('/api/rank', async (req, res) => {
 
     const positions = [
   { x: 85, y: 220 },  // 1º item
-  { x: 85, y: 275 },  // 2º item
+  { x: 85, y: 300 },  // 2º item
   { x: 85, y: 340 },  // 3º item
   { x: 85, y: 405 },  // 4º item
   { x: 85, y: 470 },  // 5º item
   { x: 445, y: 220 }, // 6º item
-  { x: 445, y: 275 }, // 7º item
+  { x: 445, y: 300 }, // 7º item
   { x: 445, y: 340 }, // 8º item
   { x: 445, y: 405 }, // 9º item
   { x: 445, y: 470 }, // 10º item

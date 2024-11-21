@@ -31,35 +31,117 @@ app.get('/api', (req, res) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>API Nano</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f9;
+          margin: 0;
+          padding: 0;
+          color: #333;
+        }
+        h1 {
+          background-color: #4CAF50;
+          color: white;
+          padding: 15px;
+          text-align: center;
+        }
+        h2 {
+          color: #4CAF50;
+        }
+        h3 {
+          color: #555;
+        }
+        p, ul {
+          font-size: 16px;
+          line-height: 1.6;
+          margin: 10px 20px;
+        }
+        code {
+          background-color: #f2f2f2;
+          padding: 2px 6px;
+          font-family: monospace;
+        }
+        ul {
+          list-style-type: none;
+          padding: 0;
+        }
+        ul li {
+          margin: 5px 0;
+        }
+        .route-section {
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          margin: 20px;
+          padding: 15px;
+        }
+        .example {
+          background-color: #eef9f1;
+          border-left: 4px solid #4CAF50;
+          padding: 10px;
+          margin-bottom: 20px;
+        }
+        .note {
+          background-color: #fff3cd;
+          border-left: 4px solid #ffeb3b;
+          padding: 10px;
+          margin-bottom: 20px;
+        }
+      </style>
     </head>
     <body>
       <h1>API Nano</h1>
       <p>Bem-vindo à API Nano! Abaixo estão as rotas e parâmetros disponíveis:</p>
-      <h2>Rota: <code>/api/perfil</code></h2>
-      <p>Esta rota gera uma imagem de perfil personalizada com base nos parâmetros fornecidos.</p>
-      <h3>Parâmetros disponíveis:</h3>
-      <ul>
-        <li><strong>id</strong>: (opcional) O ID do usuário. Se não fornecido, será usado o ID padrão '1159667835761594449'.</li>
-        <li><strong>money</strong>: (opcional) O valor de coins do usuário, que será abreviado (por exemplo, 2000 vira 2k). Se não fornecido, o valor será 0.</li>
-        <li><strong>reps</strong>: (opcional) O valor de reputações (reps) do usuário, que também será abreviado. Se não fornecido, o valor será 0.</li>
-        <li><strong>status</strong>: (opcional) O status do usuário, como 'Solteiro(a)', 'Casado(a)', etc. O valor padrão é 'Solteiro(a)'.</li>
-        <li><strong>aboutMe</strong>: (opcional) Texto sobre o usuário. O valor padrão é 'Sou um entusiasta\nem tecnologia.'</li>
-        <li><strong>json</strong>: (opcional) Se definido como 'true', a resposta será no formato JSON, contendo as informações do usuário. Caso contrário, será gerada uma imagem de perfil em formato PNG.</li>
-      </ul>
-      <p>Exemplo de uso:</p>
-      <ul>
-        <li><code>/api/perfil?id=123456789&money=1000&reps=50&status=Casado(a)&aboutMe=Adoro programar</code> - Gera uma imagem de perfil com as informações fornecidas.</li>
-        <li><code>/api/perfil?json=true&id=123456789</code> - Retorna as informações do perfil em formato JSON.</li>
-      </ul>
+
+      <!-- Rota Perfil -->
+      <div class="route-section">
+        <h2>Rota: <code>/api/perfil</code></h2>
+        <p>Esta rota gera uma imagem de perfil personalizada com base nos parâmetros fornecidos.</p>
+        <h3>Parâmetros disponíveis:</h3>
+        <ul>
+          <li><strong>id</strong>: (opcional) O ID do usuário. Se não fornecido, será usado o ID padrão '1159667835761594449'.</li>
+          <li><strong>coins</strong>: (opcional) O valor de coins do usuário, que será abreviado (por exemplo, 2000 vira 2k). Se não fornecido, o valor será 0.</li>
+          <li><strong>reps</strong>: (opcional) O valor de reputações (reps) do usuário, que também será abreviado. Se não fornecido, o valor será 0.</li>
+          <li><strong>status</strong>: (opcional) O status do usuário, como 'Solteiro(a)', 'Casado(a)', etc. O valor padrão é 'Solteiro(a)'.</li>
+          <li><strong>aboutMe</strong>: (opcional) Texto sobre o usuário. O valor padrão é 'Sou um entusiasta\nem tecnologia.'</li>
+          <li><strong>json</strong>: (opcional) Se definido como 'true', a resposta será no formato JSON, contendo as informações do usuário. Caso contrário, será gerada uma imagem de perfil em formato PNG.</li>
+        </ul>
+        <div class="example">
+          <p><strong>Exemplo de uso:</strong></p>
+          <ul>
+            <li><code>/api/perfil?id=123456789&coins=1000&reps=50&status=Casado(a)&aboutMe=Adoro programar</code> - Gera uma imagem de perfil com as informações fornecidas.</li>
+            <li><code>/api/perfil?json=true&id=123456789</code> - Retorna as informações do perfil em formato JSON.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Rota Rank -->
+      <div class="route-section">
+        <h2>Rota: <code>/api/rank</code></h2>
+        <p>Esta rota gera um ranking dos 10 principais usuários com base nas suas moedas.</p>
+        <h3>Parâmetros disponíveis:</h3>
+        <ul>
+          <li><strong>data</strong>: (obrigatório) A lista de usuários e suas moedas, fornecida como uma string no formato <code>id:moedas,id2:moedas2,...</code>.</li>
+        </ul>
+        <div class="note">
+          <p><strong>Nota:</strong> Se o parâmetro <code>data</code> não for fornecido, a rota retornará um erro 400.</p>
+        </div>
+        <div class="example">
+          <p><strong>Exemplo de uso:</strong></p>
+          <ul>
+            <li><code>/api/rank?data=123456789:1000,987654321:1500</code> - Gera o ranking dos usuários com base nos dados fornecidos.</li>
+          </ul>
+        </div>
+      </div>
+
     </body>
     </html>
   `);
 });
-
 app.get('/api/perfil', async (req, res) => {
   const userId = req.query.id || '1159667835761594449';
   
-  const money = req.query.money ? abbreviate(Number(req.query.money)) : '0';  
+  const money = req.query.coins ? abbreviate(Number(req.query.coins)) : '0';  
   const reps = req.query.reps ? abbreviate(Number(req.query.reps)) : '0';   
   
   const status = req.query.status || 'Solteiro(a)';

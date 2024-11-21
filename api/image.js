@@ -295,6 +295,8 @@ app.get('/api/rank', async (req, res) => {
    // Tamanhos ajustados
    const avatarSize = 50;
    const iconSize = 24;
+   const avatarOffset = 15; // Espaçamento entre avatar e nome
+   const coinsOffset = 8; // Espaçamento entre ícone de moedas e número de moedas
 
    for (let i = 0; i < positions.length; i++) {
      const user = userInfoList[i];
@@ -307,11 +309,11 @@ app.get('/api/rank', async (req, res) => {
        // Configurando estilos de texto
        ctx.fillStyle = '#ffffff';
        ctx.font = 'bold 18px Arial';
-       ctx.fillText(user.username, x + avatarSize + 15, y + 20);
+       ctx.fillText(user.username, x + avatarSize + avatarOffset, y + 20);
 
        // Ícone e texto de moedas
        const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
-       const iconX = x + avatarSize + 15;
+       const iconX = x + avatarSize + avatarOffset;
        const iconY = y + 30;
 
        if (coinsIcon) {
@@ -319,9 +321,16 @@ app.get('/api/rank', async (req, res) => {
        }
 
        ctx.font = '16px Arial';
-       ctx.fillText(user.coins, iconX + iconSize + 8, iconY + 18);
+       ctx.fillText(user.coins, iconX + iconSize + coinsOffset, iconY + 18);
      }
    }
+
+   // Centralizando o título "Ranking Global"
+   ctx.fillStyle = '#ffffff';
+   ctx.font = 'bold 24px Arial';
+   const title = 'Ranking Global';
+   const titleWidth = ctx.measureText(title).width;
+   ctx.fillText(title, (width - titleWidth) / 2, 50); // Centralizando na parte superior
 
    res.setHeader('Content-Type', 'image/png');
    res.send(canvas.toBuffer('image/png'));

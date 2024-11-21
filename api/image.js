@@ -238,76 +238,115 @@ function wrapText(text, maxLength) {
 }
 
 app.get('/api/rank', async (req, res) => {
-  const maxUsers = 10; // Número máximo de usuários a exibir no ranking
-  const users = [
-    { id: '1', username: 'UserOne', coins: 1500, reps: 20, status: 'Casado(a)' },
-    { id: '2', username: 'UserTwo', coins: 1400, reps: 15, status: 'Solteiro(a)' },
-    { id: '3', username: 'UserThree', coins: 1200, reps: 25, status: 'Namorando' },
-    { id: '4', username: 'UserFour', coins: 1000, reps: 10, status: 'Complicado' },
-    // Adicione mais usuários conforme necessário
-  ];
-
-  // Ordenar por número de moedas (coins)
-  const sortedUsers = users.sort((a, b) => b.coins - a.coins).slice(0, maxUsers);
-
-  // Checar se a saída deve ser JSON
-  if (req.query.json === 'true') {
-    return res.json(sortedUsers);
+  const dataParam = req.query.data;
+  if (!dataParam) {
+    return res.status(400).send('Parâmetro "data" é obrigatório.');
   }
 
-  // Gerar imagem do ranking
+  const userEntries = dataParam.split(',').map(entry => {
+    const [id, coins] = entry.split(':');
+    return { id, coins: Number(coins) };
+  });
+
+  const maxUsers = 10;
+  const sortedUsers = userEntries
+    .sort((a, b) => b.coins - a.coins)
+    .slice(0, maxUsers);
+
   try {
-    const width = 800;
-    const height = 600;
+    const width = 720;
+    const height = 576;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    // Fundo
+    // Fundo do ranking
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(0, 0, width, height);
 
-    // Título
+    // Título do ranking
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 30px Arial';
-    ctx.fillText('Ranking de Usuários', width / 2 - ctx.measureText('Ranking de Usuários').width / 2, 50);
+    ctx.fillText('Ranking - Top 10', 20, 50);
 
-    // Desenhar tabela do ranking
-    const startY = 100;
-    const rowHeight = 50;
-    sortedUsers.forEach((user, index) => {
-      const y = startY + index * rowHeight;
+    const userInfoList = await Promise.all(
+      sortedUsers.map(async (user) => {
+        try {
+          const userInfo = await getUserInfo(user.id);
+          if (!userInfo || !userInfo.username || !userInfo.avatar) {
+            // Se as informações do usuário forem incompletas, retorna null
+            return null;
+          }
+          return { ...userInfo, coins: abbreviate(user.coins) };
+        } catch (error) {
+          // Se houver erro ao buscar informações do usuário, retorna null
+          return null;
+        }
+      })
+    );
 
-      ctx.fillStyle = index % 2 === 0 ? '#2a2a2a' : '#1f1f1f';
-      ctx.fillRect(50, y, width - 100, rowHeight);
+    // Headers do ranking
+    ctx.font = 'bold 20px Arial';
+    ctx.fillText('Posição', 20, 100);
 
-      // Índice
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 20px Arial';
-      ctx.fillText(`#${index + 1}`, 70, y + rowHeight / 2 + 8);
+    // Linhas do ranking
+    const rowHeight = 90;
+    const avatarSize = 60;
+    const iconSize = 20;
+    let validIndex = 0; // Índice de posição válida no ranking
 
-      // Nome do Usuário
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '18px Arial';
-      ctx.fillText(user.username, 120, y + rowHeight / 2 + 8);
+    userInfoList.forEach((user, index) => {
+      if (user) {
+        const y = 140 + validIndex * rowHeight;
 
-      // Moedas
-      ctx.fillStyle = '#ffd700';
-      ctx.fillText(`Coins: ${abbreviate(user.coins)}`, 350, y + rowHeight / 2 + 8);
+        // Número da posição
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px Arial';
+        ctx.fillText(`${validIndex + 1}º`, 20, y + 30);
 
-      // Reputações
-      ctx.fillStyle = '#00ff00';
-      ctx.fillText(`Reps: ${abbreviate(user.reps)}`, 500, y + rowHeight / 2 + 8);
+        // Avatar do usuário
+        const avatarX = 80;
+        const avatarY = y;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+        ctx.clip();
 
-      // Status
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(`Status: ${user.status}`, 650, y + rowHeight / 2 + 8);
+        const avatar = await loadImage(user.avatar);
+        if (avatar) {
+          ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+        }
+
+        ctx.restore();
+
+        // Nome do usuário
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px Arial';
+        ctx.fillText(user.username, avatarX + avatarSize + 10, y + 35);
+
+        // Ícone de coins e valor
+        const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
+        const iconX = avatarX + avatarSize + 10;
+        const iconY = y + 50;
+
+        if (coinsIcon) {
+          ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
+        }
+
+        // Valor de coins
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(user.coins, iconX + iconSize + 5, iconY + 15);
+
+        // Incrementa o índice apenas se o usuário foi válido
+        validIndex++;
+      }
     });
 
-    // Rodapé
-    const footerText = `Ranking atualizado em ${new Date().toLocaleString('pt-BR')}`;
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '16px Arial';
-    ctx.fillText(footerText, 50, height - 20);
+    // Marca de Copyright no rodapé
+    const footerText = '© 2024 Sam Bot';
+    ctx.font = '14px Arial';
+    const footerTextWidth = ctx.measureText(footerText).width;
+    ctx.fillText(footerText, width - footerTextWidth - 20, height - 20);
 
     res.setHeader('Content-Type', 'image/png');
     res.send(canvas.toBuffer('image/png'));

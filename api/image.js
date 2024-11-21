@@ -284,16 +284,16 @@ app.get('/api/rank', async (req, res) => {
       })
     );
 
-    // Posições ajustadas de acordo com os campos na imagem base
+    // Posições ajustadas para alinhar com os campos na imagem
     const positions = [
-      { x: 28, y: 92 },  { x: 28, y: 145 }, { x: 28, y: 197 },
-      { x: 28, y: 249 }, { x: 28, y: 301 }, { x: 384, y: 92 },
-      { x: 384, y: 145 }, { x: 384, y: 197 }, { x: 384, y: 249 },
-      { x: 384, y: 301 },
+      { x: 50, y: 98 },  { x: 50, y: 150 }, { x: 50, y: 202 },
+      { x: 50, y: 254 }, { x: 50, y: 306 }, { x: 410, y: 98 },
+      { x: 410, y: 150 }, { x: 410, y: 202 }, { x: 410, y: 254 },
+      { x: 410, y: 306 },
     ];
 
     const avatarSize = 40; // Tamanho ajustado para os avatares
-    const iconSize = 18;   // Tamanho ajustado para o ícone de moedas
+    const iconSize = 20;   // Tamanho ajustado para o ícone de moedas
 
     for (let i = 0; i < positions.length; i++) {
       const user = userInfoList[i];
@@ -305,22 +305,22 @@ app.get('/api/rank', async (req, res) => {
 
         // Configurando estilos de texto
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px Arial';
-        ctx.fillText(user.username, x + avatarSize + 10, y + 25);
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText(user.username, x + avatarSize + 10, y + 20);
 
         // Ícone de moedas
         const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
         const iconX = x + avatarSize + 10;
-        const iconY = y + 30;
+        const iconY = y + 25;
 
         if (coinsIcon) {
           ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
         }
 
         // Quantidade de moedas
-        ctx.font = '12px Arial';
+        ctx.font = '14px Arial';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(user.coins, iconX + iconSize + 5, iconY + 14);
+        ctx.fillText(user.coins, iconX + iconSize + 5, iconY + 15);
       }
     }
 

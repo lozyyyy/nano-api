@@ -259,99 +259,56 @@ app.get('/api/rank', async (req, res) => {
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    // Fundo do ranking
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(0, 0, width, height);
-
-    // Título do ranking
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 30px Arial';
-    ctx.fillText('Ranking - Top 10', 20, 50);
+    // Carregando a imagem de fundo
+    const background = await loadImage(path.join(__dirname, './perfil.png'));
+    ctx.drawImage(background, 0, 0, width, height);
 
     const userInfoList = await Promise.all(
       sortedUsers.map(async (user) => {
         try {
           const userInfo = await getUserInfo(user.id);
           if (!userInfo || !userInfo.username || !userInfo.avatar) {
-            // Se as informações do usuário forem incompletas, retorna null
             return null;
           }
           return { ...userInfo, coins: abbreviate(user.coins) };
         } catch (error) {
-          // Se houver erro ao buscar informações do usuário, retorna null
           return null;
         }
       })
     );
 
-    // Função assíncrona para carregar e desenhar o avatar
-    const drawAvatar = async (ctx, avatarUrl, x, y, size) => {
-      try {
-        const avatar = await loadImage(avatarUrl);
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(avatar, x, y, size, size);
-        ctx.restore();
-      } catch (error) {
-        console.error('Erro ao carregar avatar:', error);
-      }
-    };
+    const positions = [
+      { x: 90, y: 110 }, { x: 90, y: 162 }, { x: 90, y: 214 },
+      { x: 90, y: 266 }, { x: 90, y: 318 }, { x: 360, y: 110 },
+      { x: 360, y: 162 }, { x: 360, y: 214 }, { x: 360, y: 266 },
+      { x: 360, y: 318 }
+    ];
 
-    // Headers do ranking
-    ctx.font = 'bold 20px Arial';
-    ctx.fillText('Posição', 20, 100);
-
-    // Linhas do ranking
-    const rowHeight = 90;
-    const avatarSize = 60;
+    const avatarSize = 45;
     const iconSize = 20;
-    let validIndex = 0; // Índice de posição válida no ranking
 
-    for (const [index, user] of userInfoList.entries()) {
+    for (let i = 0; i < positions.length; i++) {
+      const user = userInfoList[i];
       if (user) {
-        const y = 140 + validIndex * rowHeight;
-
-        // Número da posição
+        const { x, y } = positions[i];
+        await drawAvatar(ctx, user.avatar, x, y, avatarSize);
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 24px Arial';
-        ctx.fillText(`${validIndex + 1}º`, 20, y + 30);
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText(user.username, x + avatarSize + 10, y + 20);
 
-        // Avatar do usuário
-        const avatarX = 80;
-        const avatarY = y;
-        await drawAvatar(ctx, user.avatar, avatarX, avatarY, avatarSize);
-
-        // Nome do usuário
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 18px Arial';
-        ctx.fillText(user.username, avatarX + avatarSize + 10, y + 35);
-
-        // Ícone de coins e valor
         const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
-        const iconX = avatarX + avatarSize + 10;
-        const iconY = y + 50;
+        const iconX = x + avatarSize + 10;
+        const iconY = y + 25;
 
         if (coinsIcon) {
           ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
         }
 
-        // Valor de coins
-        ctx.font = '16px Arial';
+        ctx.font = '14px Arial';
         ctx.fillStyle = '#ffffff';
         ctx.fillText(user.coins, iconX + iconSize + 5, iconY + 15);
-
-        // Incrementa o índice apenas se o usuário foi válido
-        validIndex++;
       }
     }
-
-    // Marca de Copyright no rodapé
-    const footerText = '© 2024 Sam Bot';
-    ctx.font = '14px Arial';
-    const footerTextWidth = ctx.measureText(footerText).width;
-    ctx.fillText(footerText, width - footerTextWidth - 20, height - 20);
 
     res.setHeader('Content-Type', 'image/png');
     res.send(canvas.toBuffer('image/png'));

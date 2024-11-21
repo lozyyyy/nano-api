@@ -275,12 +275,12 @@ app.get('/api/rank', async (req, res) => {
   { x: 85, y: 305 },  // 2º item
   { x: 85, y: 390 },  // 3º item
   { x: 85, y: 477 },  // 4º item
-  { x: 85, y: 562 },  // 5º item
+  { x: 85, y: 564 },  // 5º item
   { x: 445, y: 220 }, // 6º item
   { x: 445, y: 305 }, // 7º item
   { x: 445, y: 390 }, // 8º item
   { x: 445, y: 477 }, // 9º item
-  { x: 445, y: 562 }, // 10º item
+  { x: 445, y: 564 }, // 10º item
 ];
 
     const avatarSize = 50;

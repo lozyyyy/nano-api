@@ -271,7 +271,7 @@ app.get('/api/rank', async (req, res) => {
     ctx.drawImage(background, 0, 0, width, height);
 
     const positions = [
-  { x: 85, y: 210 },  // 1º item
+  { x: 85, y: 220 },  // 1º item
   { x: 85, y: 275 },  // 2º item
   { x: 85, y: 340 },  // 3º item
   { x: 85, y: 405 },  // 4º item

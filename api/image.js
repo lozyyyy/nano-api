@@ -284,36 +284,43 @@ app.get('/api/rank', async (req, res) => {
       })
     );
 
+    // Posições ajustadas de acordo com os campos na imagem base
     const positions = [
-      { x: 90, y: 110 }, { x: 90, y: 162 }, { x: 90, y: 214 },
-      { x: 90, y: 266 }, { x: 90, y: 318 }, { x: 360, y: 110 },
-      { x: 360, y: 162 }, { x: 360, y: 214 }, { x: 360, y: 266 },
-      { x: 360, y: 318 }
+      { x: 28, y: 92 },  { x: 28, y: 145 }, { x: 28, y: 197 },
+      { x: 28, y: 249 }, { x: 28, y: 301 }, { x: 384, y: 92 },
+      { x: 384, y: 145 }, { x: 384, y: 197 }, { x: 384, y: 249 },
+      { x: 384, y: 301 },
     ];
 
-    const avatarSize = 45;
-    const iconSize = 20;
+    const avatarSize = 40; // Tamanho ajustado para os avatares
+    const iconSize = 18;   // Tamanho ajustado para o ícone de moedas
 
     for (let i = 0; i < positions.length; i++) {
       const user = userInfoList[i];
       if (user) {
         const { x, y } = positions[i];
-        await drawAvatar(ctx, user.avatar, x, y, avatarSize);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px Arial';
-        ctx.fillText(user.username, x + avatarSize + 10, y + 20);
 
+        // Desenhando o avatar
+        await drawAvatar(ctx, user.avatar, x, y, avatarSize);
+
+        // Configurando estilos de texto
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px Arial';
+        ctx.fillText(user.username, x + avatarSize + 10, y + 25);
+
+        // Ícone de moedas
         const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
         const iconX = x + avatarSize + 10;
-        const iconY = y + 25;
+        const iconY = y + 30;
 
         if (coinsIcon) {
           ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
         }
 
-        ctx.font = '14px Arial';
+        // Quantidade de moedas
+        ctx.font = '12px Arial';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(user.coins, iconX + iconSize + 5, iconY + 15);
+        ctx.fillText(user.coins, iconX + iconSize + 5, iconY + 14);
       }
     }
 

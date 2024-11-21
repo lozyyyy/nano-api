@@ -272,11 +272,17 @@ app.get('/api/rank', async (req, res) => {
 
     // Novas posições ajustadas
     const positions = [
-      { x: 85, y: 160 },  { x: 85, y: 205 }, { x: 85, y: 270 },
-      { x: 85, y: 335 }, { x: 85, y: 400 }, { x: 445, y: 140 },
-      { x: 445, y: 205 }, { x: 445, y: 270 }, { x: 445, y: 335 },
-      { x: 445, y: 400 },
-    ];
+  { x: 85, y: 160 + 70 },  // 1º item
+  { x: 85, y: 205 + 70 },  // 2º item
+  { x: 85, y: 270 + 70 },  // 3º item
+  { x: 85, y: 335 + 70 },  // 4º item
+  { x: 85, y: 400 + 70 },  // 5º item
+  { x: 445, y: 140 + 70 }, // 6º item
+  { x: 445, y: 205 + 70 }, // 7º item
+  { x: 445, y: 270 + 70 }, // 8º item
+  { x: 445, y: 335 + 70 }, // 9º item
+  { x: 445, y: 400 + 70 }, // 10º item
+];
 
     const avatarSize = 50;
     const iconSize = 24;

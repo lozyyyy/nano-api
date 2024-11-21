@@ -324,4 +324,5 @@ app.get('/api/rank', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
+
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

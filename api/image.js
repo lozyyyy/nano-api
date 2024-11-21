@@ -286,17 +286,17 @@ app.get('/api/rank', async (req, res) => {
 
    // Coordenadas ajustadas
    const positions = [
-     { x: 70, y: 80 },  { x: 70, y: 142 }, { x: 70, y: 204 },
-     { x: 70, y: 266 }, { x: 70, y: 328 }, { x: 440, y: 80 },
-     { x: 440, y: 142 }, { x: 440, y: 204 }, { x: 440, y: 266 },
-     { x: 440, y: 328 },
-   ];
+  { x: 55, y: 78 },   { x: 55, y: 142 },  { x: 55, y: 204 },
+  { x: 55, y: 266 },  { x: 55, y: 328 },  { x: 415, y: 78 },
+  { x: 415, y: 142 }, { x: 415, y: 204 }, { x: 415, y: 266 },
+  { x: 415, y: 328 },
+];
 
-   // Tamanhos ajustados
-   const avatarSize = 50;
-   const iconSize = 24;
-   const avatarOffset = 15; // Espaçamento entre avatar e nome
-   const coinsOffset = 8; // Espaçamento entre ícone de moedas e número de moedas
+// Ajustando tamanhos
+const avatarSize = 50;
+const iconSize = 24;
+const avatarOffset = 15; // Espaçamento entre avatar e nome
+const coinsOffset = 8; // Espaçamento entre ícone de moedas e número de moedas
 
    for (let i = 0; i < positions.length; i++) {
      const user = userInfoList[i];

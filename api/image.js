@@ -260,7 +260,7 @@ app.get('/api/rank', async (req, res) => {
     const ctx = canvas.getContext('2d');
 
     // Carregando a imagem de fundo
-    const background = await loadImage(path.join(__dirname, './perfil.png'));
+    const background = await loadImage(path.join(__dirname, 'perfil.png'));
     ctx.drawImage(background, 0, 0, width, height);
 
     const userInfoList = await Promise.all(

@@ -160,7 +160,7 @@ app.get('/api/perfil', async (req, res) => {
     const ctx = canvas.getContext('2d');
 
     const avatarUrl = userInfo.avatar || 'https://media.discordapp.net/attachments/1245865207646130236/1308524311858122752/default_avatar.png';
-    const bannerUrl = userInfo.banner || path.join(__dirname, 'Bbanner.png');
+    const bannerUrl = req.query.banner || path.join(__dirname, 'Bbanner.png');
 
     const avatar = await loadImage(avatarUrl).catch(() => null);
     const banner = await loadImage(bannerUrl).catch(() => loadImage(path.join(__dirname, 'Bbanner.png')));
@@ -321,9 +321,15 @@ function wrapText(text, maxLength) {
 async function drawAvatar(ctx, avatarUrl, x, y, size) {
   try {
     const avatarImage = await loadImage(avatarUrl);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
     ctx.drawImage(avatarImage, x, y, size, size);
+    ctx.restore();
   } catch (error) {
-    console.error('Erro ao carregar avatar:', error);
+    console.error('Erro ao carregar o avatar:', error);
   }
 }
 app.get('/api/rank', async (req, res) => {

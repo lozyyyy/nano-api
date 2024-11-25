@@ -3,6 +3,13 @@
  * @param {string} userId - ID do usuário no Discord.
  * @returns {Object} - Objeto com informações do usuário, como nome e avatar.
  */
+function truncateString(name, maxLength) {
+    if (name.length > maxLength) {
+        return name.slice(0, maxLength - 3) + '...';
+    }
+    return name; // Retorna o nome completo se for menor ou igual ao limite.
+}
+
 async function getUserInfo(userId) {
   const token = process.env.Btoken; // Token do bot armazenado na variável de ambiente
 
@@ -24,7 +31,7 @@ async function getUserInfo(userId) {
 
     // Retorna as informações relevantes
     return {
-      username: user.username,
+      username: truncateString(user.username, 14),
       discriminator: user.discriminator,
       avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
       id: user.id

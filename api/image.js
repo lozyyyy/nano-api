@@ -334,6 +334,9 @@ async function drawAvatar(ctx, avatarUrl, x, y, size) {
     console.error('Erro ao carregar o avatar:', error);
   }
 }
+let cachedImage = null;
+let lastUpdateTime = 0;
+
 app.get('/api/rank', async (req, res) => {
   const dataParam = req.query.data;
 
@@ -341,13 +344,11 @@ app.get('/api/rank', async (req, res) => {
     return res.status(400).send('Parâmetro "data" é obrigatório.');
   }
 
-  // Valida e processa os dados do parâmetro `data`
   const userEntries = dataParam.split(',').map(entry => {
     const [id, coins] = entry.split(':');
     return { id: id?.trim(), coins: Number(coins) };
   });
 
-  // Filtra entradas inválidas (IDs vazios ou valores NaN para moedas)
   const validEntries = userEntries.filter(entry => entry.id && !isNaN(entry.coins));
 
   if (validEntries.length === 0) {
@@ -359,33 +360,39 @@ app.get('/api/rank', async (req, res) => {
     .sort((a, b) => b.coins - a.coins)
     .slice(0, maxUsers);
 
+  const now = Date.now();
+  const cacheDuration = 20 * 60 * 1000; // 20 minutos em milissegundos
+
+  if (cachedImage && now - lastUpdateTime < cacheDuration) {
+    return res.setHeader('Content-Type', 'image/png').send(cachedImage);
+  }
+
   try {
     const width = 720;
-    const height = 640; // Ajustado para incluir espaço inferior
+    const height = 640;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    // Carregando a imagem de fundo redimensionada
     const background = await loadImage(path.join(__dirname, 'perfil.png'));
     ctx.drawImage(background, 0, 0, width, height);
 
     const positions = [
-      { x: 85, y: 220 },  // 1º item
-      { x: 85, y: 305 },  // 2º item
-      { x: 85, y: 390 },  // 3º item
-      { x: 85, y: 477 },  // 4º item
-      { x: 85, y: 564 },  // 5º item
-      { x: 445, y: 220 }, // 6º item
-      { x: 445, y: 305 }, // 7º item
-      { x: 445, y: 390 }, // 8º item
-      { x: 445, y: 477 }, // 9º item
-      { x: 445, y: 564 }, // 10º item
+      { x: 85, y: 220 },
+      { x: 85, y: 305 },
+      { x: 85, y: 390 },
+      { x: 85, y: 477 },
+      { x: 85, y: 564 },
+      { x: 445, y: 220 },
+      { x: 445, y: 305 },
+      { x: 445, y: 390 },
+      { x: 445, y: 477 },
+      { x: 445, y: 564 },
     ];
 
-    const avatarSize = 50; // Tamanho do avatar
+    const avatarSize = 50;
+    const avatarOffset = 15;
+    const coinsOffset = 8;
     const iconSize = 24;
-    const avatarOffset = 15; // Espaçamento entre avatar e nome
-    const coinsOffset = 8; // Espaçamento entre ícone de moedas e número de moedas
 
     const userInfoList = await Promise.all(
       sortedUsers.map(async (user) => {
@@ -406,21 +413,12 @@ app.get('/api/rank', async (req, res) => {
       if (user) {
         const { x, y } = positions[i];
 
-        // Desenhando o avatar redondo
-        const avatar = await loadImage(user.avatar);
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x + avatarSize / 2, y + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(avatar, x, y, avatarSize, avatarSize);
-        ctx.restore();
+        await drawAvatar(ctx, user.avatar, x, y, avatarSize);
 
-        // Configurando estilos de texto
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 24px Arial';
         ctx.fillText(user.username, x + avatarSize + avatarOffset, y + 20);
 
-        // Ícone e texto de moedas
         const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
         const iconX = x + avatarSize + avatarOffset;
         const iconY = y + 30;
@@ -434,8 +432,11 @@ app.get('/api/rank', async (req, res) => {
       }
     }
 
+    cachedImage = canvas.toBuffer('image/png');
+    lastUpdateTime = now;
+
     res.setHeader('Content-Type', 'image/png');
-    res.send(canvas.toBuffer('image/png'));
+    res.send(cachedImage);
   } catch (error) {
     console.error('Erro ao gerar ranking:', error);
     res.status(500).send('Erro interno do servidor.');

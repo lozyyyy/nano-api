@@ -336,17 +336,26 @@ async function drawAvatar(ctx, avatarUrl, x, y, size) {
 }
 app.get('/api/rank', async (req, res) => {
   const dataParam = req.query.data;
+
   if (!dataParam) {
     return res.status(400).send('Parâmetro "data" é obrigatório.');
   }
 
+  // Valida e processa os dados do parâmetro `data`
   const userEntries = dataParam.split(',').map(entry => {
     const [id, coins] = entry.split(':');
-    return { id, coins: Number(coins) };
+    return { id: id?.trim(), coins: Number(coins) };
   });
 
+  // Filtra entradas inválidas (IDs vazios ou valores NaN para moedas)
+  const validEntries = userEntries.filter(entry => entry.id && !isNaN(entry.coins));
+
+  if (validEntries.length === 0) {
+    return res.status(400).send('Nenhum dado válido foi enviado.');
+  }
+
   const maxUsers = 10;
-  const sortedUsers = userEntries
+  const sortedUsers = validEntries
     .sort((a, b) => b.coins - a.coins)
     .slice(0, maxUsers);
 
@@ -406,9 +415,9 @@ app.get('/api/rank', async (req, res) => {
         ctx.drawImage(avatar, x, y, avatarSize, avatarSize);
         ctx.restore();
 
-        // Configurando estilos de texto (aumentado tamanho da fonte)
+        // Configurando estilos de texto
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 24px Arial'; // Aumentado o tamanho da fonte
+        ctx.font = 'bold 24px Arial';
         ctx.fillText(user.username, x + avatarSize + avatarOffset, y + 20);
 
         // Ícone e texto de moedas
@@ -420,7 +429,7 @@ app.get('/api/rank', async (req, res) => {
           ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
         }
 
-        ctx.font = '20px Arial'; // Aumentado o tamanho da fonte
+        ctx.font = '20px Arial';
         ctx.fillText(user.coins, iconX + iconSize + coinsOffset, iconY + 18);
       }
     }

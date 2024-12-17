@@ -339,6 +339,7 @@ let lastUpdateTime = 0;
 
 app.get('/api/rank', async (req, res) => {
   const dataParam = req.query.data;
+  const timestamp = req.query.timestamp;
 
   if (!dataParam) {
     return res.status(400).send('Parâmetro "data" é obrigatório.');
@@ -359,13 +360,6 @@ app.get('/api/rank', async (req, res) => {
   const sortedUsers = validEntries
     .sort((a, b) => b.coins - a.coins)
     .slice(0, maxUsers);
-
-  const now = Date.now();
-  const cacheDuration = 20 * 60 * 1000; // 20 minutos em milissegundos
-
-  if (cachedImage && now - lastUpdateTime < cacheDuration) {
-    return res.setHeader('Content-Type', 'image/png').send(cachedImage);
-  }
 
   try {
     const width = 720;
@@ -432,11 +426,18 @@ app.get('/api/rank', async (req, res) => {
       }
     }
 
-    cachedImage = canvas.toBuffer('image/png');
-    lastUpdateTime = now;
+    if (timestamp) {
+      const date = new Date(Number(timestamp));
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'italic 16px Arial';
+      ctx.fillText(`Gerado em: ${date.toLocaleString()}`, 20, height - 20);
+    }
 
     res.setHeader('Content-Type', 'image/png');
-    res.send(cachedImage);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.send(canvas.toBuffer('image/png'));
   } catch (error) {
     console.error('Erro ao gerar ranking:', error);
     res.status(500).send('Erro interno do servidor.');

@@ -105,13 +105,12 @@ app.get('/api', (req, res) => {
           <li><strong>status</strong>: (opcional) O status do usuário, como 'Solteiro(a)', 'Casado(a)', etc. O valor padrão é 'Solteiro(a)'.</li>
           <li><strong>aboutMe</strong>: (opcional) Texto sobre o usuário. O valor padrão é 'Sou um entusiasta\nem tecnologia.'</li>
           <li><strong>banner</strong>: (opcional) Url para imagem do banner sugiro uso do website: https/i.ibb.co/</li>
-          
           <li><strong>json</strong>: (opcional) Se definido como 'true', a resposta será no formato JSON, contendo as informações do usuário. Caso contrário, será gerada uma imagem de perfil em formato PNG.</li>
         </ul>
         <div class="example">
           <p><strong>Exemplo de uso:</strong></p>
           <ul>
-            <li><code>/api/perfil?id=123456789&coins=1000&reps=50&status=Casado(a)&aboutMe=Adoro programar</code> - Gera uma imagem de perfil com as informações fornecidas.&banner=https/i.ibb.co/d5Xb0T9/Bbanner.jpg</li>
+            <li><code>/api/perfil?id=123456789&coins=1000&reps=50&status=Casado(a)&aboutMe=Adoro programar</code> - Gera uma imagem de perfil com as informações fornecidas.</li>
             <li><code>/api/perfil?json=true&id=123456789</code> - Retorna as informações do perfil em formato JSON.</li>
           </ul>
         </div>
@@ -124,6 +123,7 @@ app.get('/api', (req, res) => {
         <h3>Parâmetros disponíveis:</h3>
         <ul>
           <li><strong>data</strong>: (obrigatório) A lista de usuários e suas moedas, fornecida como uma string no formato <code>id:moedas,id2:moedas2,...</code>.</li>
+          <li><strong>timestamp</strong>: (opcional) Um timestamp em milissegundos que não servirá para nada em especial.</li>
         </ul>
         <div class="note">
           <p><strong>Nota:</strong> Se o parâmetro <code>data</code> não for fornecido, a rota retornará um erro 400.</p>
@@ -131,7 +131,7 @@ app.get('/api', (req, res) => {
         <div class="example">
           <p><strong>Exemplo de uso:</strong></p>
           <ul>
-            <li><code>/api/rank?data=123456789:1000,987654321:1500</code> - Gera o ranking dos usuários com base nos dados fornecidos.</li>
+            <li><code>/api/rank?data=123456789:1000,987654321:1500&timestamp=1714158300000</code> - Gera o ranking dos usuários com base nos dados fornecidos e exibe a data correspondente ao timestamp.</li>
           </ul>
         </div>
       </div>
@@ -339,7 +339,6 @@ let lastUpdateTime = 0;
 
 app.get('/api/rank', async (req, res) => {
   const dataParam = req.query.data;
-  const timestamp = req.query.timestamp;
 
   if (!dataParam) {
     return res.status(400).send('Parâmetro "data" é obrigatório.');
@@ -424,13 +423,6 @@ app.get('/api/rank', async (req, res) => {
         ctx.font = '20px Arial';
         ctx.fillText(user.coins, iconX + iconSize + coinsOffset, iconY + 18);
       }
-    }
-
-    if (timestamp) {
-      const date = new Date(Number(timestamp));
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'italic 16px Arial';
-      ctx.fillText(`Gerado em: ${date.toLocaleString()}`, 20, height - 20);
     }
 
     res.setHeader('Content-Type', 'image/png');

@@ -592,7 +592,7 @@ app.get('/api/rank', async (req, res) => {
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(`${user.username} (${user.coins})`, x, y - 90);
+        ctx.fillText(user.username, x, y - 90);
       }
     }
 
@@ -631,7 +631,7 @@ app.get('/api/rank', async (req, res) => {
         }
 
         ctx.font = '12px Arial';
-        ctx.fillText(`${user.coins} moedas`, iconX + iconSize + coinsOffset, iconY + 18);
+        ctx.fillText(`${user.coins}`, iconX + iconSize + coinsOffset, iconY + 18); // Exibe apenas o valor das moedas
 
         listY += 60;
       }

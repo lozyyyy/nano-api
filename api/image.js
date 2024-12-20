@@ -486,7 +486,7 @@ app.get('/api/rank', async (req, res) => {
     const podiumPositions = [
       { x: 135, y: 200 }, // 1º lugar
       { x: 65, y: 230 }, // 2º lugar
-      { x: 205, y: 250 }, // 3º lugar
+      { x: 210, y: 250 }, // 3º lugar
     ];
 
     for (let i = 0; i < 3; i++) {

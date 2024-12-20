@@ -337,7 +337,7 @@ async function drawAvatar(ctx, avatarUrl, x, y, size) {
 let cachedImage = null;
 let lastUpdateTime = 0;
 
-app.get('/api/rank2', async (req, res) => {
+app.get('/api/rankorigin', async (req, res) => {
   const dataParam = req.query.data;
 
   if (!dataParam) {
@@ -435,7 +435,7 @@ app.get('/api/rank2', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
-app.get('/api/rank', async (req, res) => {
+app.get('/api/rank3', async (req, res) => {
   const { extraData, data } = req.query;
 
   if (!extraData || !data) {
@@ -523,6 +523,113 @@ app.get('/api/rank', async (req, res) => {
         ctx.font = '12px Arial';
         ctx.textAlign = 'left';
         ctx.fillText(`${user.username} - Coins: ${user.coins}`, 390, listY);
+        listY += 50;
+      }
+    }
+
+    res.setHeader('Content-Type', 'image/png');
+    res.send(canvas.toBuffer('image/png'));
+  } catch (error) {
+    console.error('Erro ao gerar ranking:', error);
+    res.status(500).send('Erro interno do servidor.');
+  }
+});
+app.get('/api/rank', async (req, res) => {
+  const { extraData, data } = req.query;
+
+  if (!extraData || !data) {
+    return res.status(400).send('Parâmetros "extraData" e "data" são obrigatórios.');
+  }
+
+  // Processar dados do pódio (extraData)
+  const podiumEntries = extraData.split(',').map(entry => {
+    const [id, coins] = entry.split(':');
+    return { id: id?.trim(), coins: Number(coins) };
+  }).filter(entry => entry.id && !isNaN(entry.coins));
+
+  if (podiumEntries.length < 3) {
+    return res.status(400).send('É necessário pelo menos 3 usuários válidos no parâmetro "extraData".');
+  }
+
+  // Processar dados da lista lateral (data)
+  const listEntries = data.split(',').map(entry => {
+    const [id, coins] = entry.split(':');
+    return { id: id?.trim(), coins: Number(coins) };
+  }).filter(entry => entry.id && !isNaN(entry.coins));
+
+  if (listEntries.length < 5) {
+    return res.status(400).send('É necessário pelo menos 5 usuários válidos no parâmetro "data".');
+  }
+
+  try {
+    const canvas = createCanvas(525, 350); // Dimensões da imagem fornecida
+    const ctx = canvas.getContext('2d');
+
+    // Carregar a imagem de fundo
+    const background = await loadImage('https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png');
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+    // Obter informações dos usuários do pódio
+    const podiumInfo = await Promise.all(
+      podiumEntries.sort((a, b) => b.coins - a.coins).slice(0, 3).map(async (user) => {
+        try {
+          return await getUserInfo(user.id);
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    // Desenhar o pódio
+    const podiumPositions = [
+      { x: 135, y: 250 }, // 1º lugar
+      { x: 65, y: 280 }, // 2º lugar
+      { x: 210, y: 300 }, // 3º lugar
+    ];
+
+    for (let i = 0; i < 3; i++) {
+      const user = podiumInfo[i];
+      if (user) {
+        const { x, y } = podiumPositions[i];
+        await drawAvatar(ctx, user.avatar, x - 25, y - 75, 50);
+
+        // Nome do usuário
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(user.username, x, y - 90);
+
+        // Ícone de moedas
+        const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
+        ctx.drawImage(coinsIcon, x - 12, y - 50, 24, 24);
+      }
+    }
+
+    // Obter informações dos usuários da lista lateral
+    const listInfo = await Promise.all(
+      listEntries.sort((a, b) => b.coins - a.coins).slice(0, 5).map(async (user) => {
+        try {
+          return await getUserInfo(user.id);
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    // Desenhar a lista lateral
+    let listY = 60;
+    for (const user of listInfo) {
+      if (user) {
+        await drawAvatar(ctx, user.avatar, 350, listY - 20, 30); // Avatar
+        ctx.fillStyle = '#000000';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText(user.username, 390, listY);
+
+        // Ícone de moedas
+        const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
+        ctx.drawImage(coinsIcon, 390, listY + 10, 24, 24);
+
         listY += 50;
       }
     }

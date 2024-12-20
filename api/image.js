@@ -435,4 +435,54 @@ app.get('/api/rank', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
+app.get('/api/rank2', async (req, res) => {
+  const extraData = req.query.extraData;
+
+  if (!extraData) {
+    return res.status(400).send('Parâmetro "extraData" é obrigatório.');
+  }
+
+  const userEntries = extraData.split(',').map(entry => {
+    const [id, coins] = entry.split(':');
+    return { id: id?.trim(), coins: Number(coins) };
+  });
+
+  const validEntries = userEntries.filter(entry => entry.id && !isNaN(entry.coins));
+
+  if (validEntries.length < 3) {
+    return res.status(400).send('É necessário pelo menos 3 usuários válidos.');
+  }
+
+  const sortedUsers = validEntries.sort((a, b) => b.coins - a.coins).slice(0, 3);
+
+  try {
+    const canvas = createCanvas(525, 350); // Dimensões da imagem fornecida
+    const ctx = canvas.getContext('2d');
+
+    // Substituir aqui para carregar a nova imagem perfil2.png
+    const background = await loadImage('https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png');
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+    // Posições dos pedestais
+    const positions = [
+      { x: 265, y: 200, size: 24 }, // 1º lugar
+      { x: 135, y: 220, size: 20 }, // 2º lugar
+      { x: 375, y: 240, size: 20 }, // 3º lugar
+    ];
+
+    sortedUsers.forEach((user, index) => {
+      const { x, y, size } = positions[index];
+      ctx.fillStyle = '#000';
+      ctx.font = `${size}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`${user.id} (${user.coins})`, x, y);
+    });
+
+    res.setHeader('Content-Type', 'image/png');
+    res.send(canvas.toBuffer('image/png'));
+  } catch (error) {
+    console.error('Erro ao gerar ranking:', error);
+    res.status(500).send('Erro interno do servidor.');
+  }
+});
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

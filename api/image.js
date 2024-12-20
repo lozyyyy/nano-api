@@ -436,47 +436,95 @@ app.get('/api/rank2', async (req, res) => {
   }
 });
 app.get('/api/rank', async (req, res) => {
-  const extraData = req.query.extraData;
+  const { extraData, data } = req.query;
 
-  if (!extraData) {
-    return res.status(400).send('Parâmetro "extraData" é obrigatório.');
+  if (!extraData || !data) {
+    return res.status(400).send('Parâmetros "extraData" e "data" são obrigatórios.');
   }
 
-  const userEntries = extraData.split(',').map(entry => {
+  // Processar os dados do parâmetro extraData (pódio)
+  const podiumEntries = extraData.split(',').map(entry => {
     const [id, coins] = entry.split(':');
     return { id: id?.trim(), coins: Number(coins) };
-  });
+  }).filter(entry => entry.id && !isNaN(entry.coins));
 
-  const validEntries = userEntries.filter(entry => entry.id && !isNaN(entry.coins));
-
-  if (validEntries.length < 3) {
-    return res.status(400).send('É necessário pelo menos 3 usuários válidos.');
+  if (podiumEntries.length < 3) {
+    return res.status(400).send('É necessário pelo menos 3 usuários válidos no parâmetro "extraData".');
   }
 
-  const sortedUsers = validEntries.sort((a, b) => b.coins - a.coins).slice(0, 3);
+  // Processar os dados do parâmetro data (lista lateral)
+  const listEntries = data.split(',').map(entry => {
+    const [id, coins] = entry.split(':');
+    return { id: id?.trim(), coins: Number(coins) };
+  }).filter(entry => entry.id && !isNaN(entry.coins));
+
+  if (listEntries.length < 5) {
+    return res.status(400).send('É necessário pelo menos 5 usuários válidos no parâmetro "data".');
+  }
 
   try {
     const canvas = createCanvas(525, 350); // Dimensões da imagem fornecida
     const ctx = canvas.getContext('2d');
 
-    // Substituir aqui para carregar a nova imagem perfil2.png
+    // Carregar a imagem de fundo
     const background = await loadImage('https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png');
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // Posições dos pedestais
-    const positions = [
-      { x: 265, y: 200, size: 24 }, // 1º lugar
-      { x: 135, y: 220, size: 20 }, // 2º lugar
-      { x: 375, y: 240, size: 20 }, // 3º lugar
+    // Obter informações dos usuários para o pódio
+    const podiumInfo = await Promise.all(
+      podiumEntries.sort((a, b) => b.coins - a.coins).slice(0, 3).map(async (user) => {
+        try {
+          const userInfo = await getUserInfo(user.id);
+          return { ...userInfo, coins: abbreviate(user.coins) };
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    // Desenhar o pódio
+    const podiumPositions = [
+      { x: 265, y: 200 }, // 1º lugar
+      { x: 135, y: 220 }, // 2º lugar
+      { x: 375, y: 240 }, // 3º lugar
     ];
 
-    sortedUsers.forEach((user, index) => {
-      const { x, y, size } = positions[index];
-      ctx.fillStyle = '#000';
-      ctx.font = `${size}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.fillText(`${user.id} (${user.coins})`, x, y);
-    });
+    for (let i = 0; i < 3; i++) {
+      const user = podiumInfo[i];
+      if (user) {
+        const { x, y } = podiumPositions[i];
+        await drawAvatar(ctx, user.avatar, x - 50, y - 100, 50);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '18px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(user.username, x, y);
+        ctx.fillText(`Coins: ${user.coins}`, x, y + 20);
+      }
+    }
+
+    // Obter informações dos usuários para a lista lateral
+    const listInfo = await Promise.all(
+      listEntries.sort((a, b) => b.coins - a.coins).slice(0, 5).map(async (user) => {
+        try {
+          const userInfo = await getUserInfo(user.id);
+          return { ...userInfo, coins: abbreviate(user.coins) };
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    // Desenhar a lista lateral
+    let listY = 50;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#000000';
+    for (const user of listInfo) {
+      if (user) {
+        ctx.font = '16px Arial';
+        ctx.fillText(`${user.username} - Coins: ${user.coins}`, 350, listY);
+        listY += 30;
+      }
+    }
 
     res.setHeader('Content-Type', 'image/png');
     res.send(canvas.toBuffer('image/png'));

@@ -607,7 +607,7 @@ app.get('/api/rank', async (req, res) => {
       })
     );
 
-    let listY = 40;
+    let listY = 30;
     const avatarSize = 50;
     const iconSize = 24;
     const coinsOffset = 8;

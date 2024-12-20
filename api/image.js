@@ -337,7 +337,7 @@ async function drawAvatar(ctx, avatarUrl, x, y, size) {
 let cachedImage = null;
 let lastUpdateTime = 0;
 
-app.get('/api/rank', async (req, res) => {
+app.get('/api/rank2', async (req, res) => {
   const dataParam = req.query.data;
 
   if (!dataParam) {
@@ -435,7 +435,7 @@ app.get('/api/rank', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
-app.get('/api/rank2', async (req, res) => {
+app.get('/api/rank', async (req, res) => {
   const extraData = req.query.extraData;
 
   if (!extraData) {

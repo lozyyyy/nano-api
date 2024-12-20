@@ -598,10 +598,6 @@ app.get('/api/rank', async (req, res) => {
         ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(user.username, x, y - 90);
-
-        // Ícone de moedas
-        const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
-        ctx.drawImage(coinsIcon, x - 12, y - 50, 24, 24);
       }
     }
 
@@ -620,17 +616,21 @@ app.get('/api/rank', async (req, res) => {
     let listY = 60;
     for (const user of listInfo) {
       if (user) {
-        await drawAvatar(ctx, user.avatar, 350, listY - 20, 30); // Avatar
+        // Aumentar o tamanho dos avatares da lista lateral
+        const avatarSize = 40;
+        await drawAvatar(ctx, user.avatar, 350, listY - 20, avatarSize);
+
+        // Nome do usuário
         ctx.fillStyle = '#000000';
-        ctx.font = '12px Arial';
+        ctx.font = '14px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText(user.username, 390, listY);
+        ctx.fillText(user.username, 400, listY);
 
-        // Ícone de moedas
-        const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
-        ctx.drawImage(coinsIcon, 390, listY + 10, 24, 24);
+        // Contagem de moedas
+        ctx.font = '12px Arial';
+        ctx.fillText(`${user.coins} moedas`, 400, listY + 15);
 
-        listY += 50;
+        listY += 60; // Ajustar espaçamento entre os usuários
       }
     }
 

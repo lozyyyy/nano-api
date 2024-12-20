@@ -619,7 +619,7 @@ app.get('/api/rank', async (req, res) => {
         await drawAvatar(ctx, user.avatar, 350, listY - 20, avatarSize);
 
         ctx.fillStyle = '#000000';
-        ctx.font = '14px Arial';
+        ctx.font = '20px Arial';
         ctx.textAlign = 'left';
         ctx.fillText(user.username, 400, listY);
 
@@ -630,7 +630,7 @@ app.get('/api/rank', async (req, res) => {
           ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
         }
 
-        ctx.font = '12px Arial';
+        ctx.font = '15px Arial';
         ctx.fillText(`${user.coins}`, iconX + iconSize + coinsOffset, iconY + 18); // Exibe apenas o valor das moedas
 
         listY += 60;

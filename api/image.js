@@ -619,7 +619,7 @@ app.get('/api/rank', async (req, res) => {
         await drawAvatar(ctx, user.avatar, 350, listY - 20, avatarSize);
 
         ctx.fillStyle = '#000000';
-        ctx.font = '16px Arial';
+        ctx.font = '14px Arial';
         ctx.textAlign = 'left';
         ctx.fillText(user.username, 400, listY);
 

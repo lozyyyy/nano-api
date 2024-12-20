@@ -320,7 +320,7 @@ function wrapText(text, maxLength) {
 
   return lines;
 }
-async function drawAvatar(ctx, avatarUrl, x, y, size) {
+async function drawAvatar2(ctx, avatarUrl, x, y, size) {
   try {
     const avatarImage = await loadImage(avatarUrl);
     ctx.save();
@@ -536,5 +536,19 @@ app.get('/api/rank', async (req, res) => {
   }
 });
 
+// Função para desenhar avatar
+async function drawAvatar(ctx, avatarUrl, x, y, size) {
+  try {
+    const avatar = await loadImage(avatarUrl);
+    ctx.beginPath();
+    ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2, true);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(avatar, x, y, size, size);
+    ctx.restore();
+  } catch (error) {
+    console.error('Erro ao carregar avatar:', error);
+  }
+}
 // https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

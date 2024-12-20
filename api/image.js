@@ -600,7 +600,7 @@ app.get('/api/rank', async (req, res) => {
       listEntries.sort((a, b) => b.coins - a.coins).slice(0, 5).map(async (user) => {
         try {
           const userInfo = await getUserInfo(user.id);
-          return { ...userInfo, coins: user.coins }; // Adicionar as moedas ao objeto do usuário
+          return { ...userInfo, coins: abbreviate(user.coins) }; // Adicionar as moedas ao objeto do usuário
         } catch {
           return null;
         }

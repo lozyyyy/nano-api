@@ -320,7 +320,7 @@ function wrapText(text, maxLength) {
 
   return lines;
 }
-async function drawAvatar2(ctx, avatarUrl, x, y, size) {
+async function drawAvatar(ctx, avatarUrl, x, y, size) {
   try {
     const avatarImage = await loadImage(avatarUrl);
     ctx.save();
@@ -442,7 +442,7 @@ app.get('/api/rank', async (req, res) => {
     return res.status(400).send('Parâmetros "extraData" e "data" são obrigatórios.');
   }
 
-  // Processar os dados do parâmetro extraData (pódio)
+  // Processar dados do pódio (extraData)
   const podiumEntries = extraData.split(',').map(entry => {
     const [id, coins] = entry.split(':');
     return { id: id?.trim(), coins: Number(coins) };
@@ -452,7 +452,7 @@ app.get('/api/rank', async (req, res) => {
     return res.status(400).send('É necessário pelo menos 3 usuários válidos no parâmetro "extraData".');
   }
 
-  // Processar os dados do parâmetro data (lista lateral)
+  // Processar dados da lista lateral (data)
   const listEntries = data.split(',').map(entry => {
     const [id, coins] = entry.split(':');
     return { id: id?.trim(), coins: Number(coins) };
@@ -470,7 +470,7 @@ app.get('/api/rank', async (req, res) => {
     const background = await loadImage('/mnt/data/file-R6KK8jyPZwucTsqp5GnYya');
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // Obter informações dos usuários para o pódio
+    // Obter informações dos usuários do pódio
     const podiumInfo = await Promise.all(
       podiumEntries.sort((a, b) => b.coins - a.coins).slice(0, 3).map(async (user) => {
         try {
@@ -482,27 +482,27 @@ app.get('/api/rank', async (req, res) => {
       })
     );
 
-    // Desenhar o pódio (Centralizado)
+    // Desenhar o pódio
     const podiumPositions = [
-      { x: 260, y: 150 }, // 1º lugar
-      { x: 135, y: 180 }, // 2º lugar
-      { x: 385, y: 210 }, // 3º lugar
+      { x: 265, y: 180 }, // 1º lugar
+      { x: 135, y: 210 }, // 2º lugar
+      { x: 375, y: 230 }, // 3º lugar
     ];
 
     for (let i = 0; i < 3; i++) {
       const user = podiumInfo[i];
       if (user) {
         const { x, y } = podiumPositions[i];
-        await drawAvatar(ctx, user.avatar, x - 35, y - 75, 70); // Avatar
+        await drawAvatar(ctx, user.avatar, x - 25, y - 75, 50);
         ctx.fillStyle = '#ffffff';
-        ctx.font = '16px Arial';
+        ctx.font = '14px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(user.username, x, y + 10); // Nome
-        ctx.fillText(`Coins: ${user.coins}`, x, y + 30); // Moedas
+        ctx.fillText(user.username, x, y + 5);
+        ctx.fillText(`Coins: ${user.coins}`, x, y + 20);
       }
     }
 
-    // Obter informações dos usuários para a lista lateral
+    // Obter informações dos usuários da lista lateral
     const listInfo = await Promise.all(
       listEntries.sort((a, b) => b.coins - a.coins).slice(0, 5).map(async (user) => {
         try {
@@ -514,17 +514,16 @@ app.get('/api/rank', async (req, res) => {
       })
     );
 
-    // Desenhar a lista lateral (Com avatar)
-    let listY = 50;
-    ctx.textAlign = 'left';
+    // Desenhar a lista lateral
+    let listY = 60;
     for (const user of listInfo) {
       if (user) {
-        await drawAvatar(ctx, user.avatar, 350, listY - 30, 30); // Avatar
+        await drawAvatar(ctx, user.avatar, 350, listY - 20, 30); // Avatar
         ctx.fillStyle = '#000000';
-        ctx.font = '14px Arial';
-        ctx.fillText(user.username, 390, listY); // Nome
-        ctx.fillText(`Coins: ${user.coins}`, 390, listY + 15); // Moedas
-        listY += 60;
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${user.username} - Coins: ${user.coins}`, 390, listY);
+        listY += 50;
       }
     }
 
@@ -535,20 +534,5 @@ app.get('/api/rank', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
-
-// Função para desenhar avatar
-async function drawAvatar(ctx, avatarUrl, x, y, size) {
-  try {
-    const avatar = await loadImage(avatarUrl);
-    ctx.beginPath();
-    ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2, true);
-    ctx.closePath();
-    ctx.clip();
-    ctx.drawImage(avatar, x, y, size, size);
-    ctx.restore();
-  } catch (error) {
-    console.error('Erro ao carregar avatar:', error);
-  }
-}
 // https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

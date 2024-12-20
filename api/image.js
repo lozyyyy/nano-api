@@ -569,6 +569,9 @@ app.get('/api/rank', async (req, res) => {
     const background = await loadImage('https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png');
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
+    // Carregar o ícone de moedas
+    const coinIcon = await loadImage('https://i.ibb.co/qWJpgZL/coin.png');
+
     // Obter informações dos usuários do pódio
     const podiumInfo = await Promise.all(
       podiumEntries.sort((a, b) => b.coins - a.coins).slice(0, 3).map(async (user) => {
@@ -601,9 +604,6 @@ app.get('/api/rank', async (req, res) => {
       }
     }
 
-    // Carregar o ícone de moeda
-    const coinsIcon = await loadImage('https://i.ibb.co/zsyvjxM/coins.png');
-
     // Obter informações dos usuários da lista lateral
     const listInfo = await Promise.all(
       listEntries.sort((a, b) => b.coins - a.coins).slice(0, 5).map(async (user) => {
@@ -629,16 +629,13 @@ app.get('/api/rank', async (req, res) => {
         ctx.textAlign = 'left';
         ctx.fillText(user.username, 400, listY);
 
-        // Desenhar o ícone de moeda
-        const iconX = 400;
-        const iconY = listY + 20;
-        if (coinsIcon) {
-          ctx.drawImage(coinsIcon, iconX, iconY, 16, 16); // Ícone de moeda
+        // Contagem de moedas com ícone
+        if (coinIcon) {
+          const iconSize = 20;
+          ctx.drawImage(coinIcon, 400, listY + 10, iconSize, iconSize);
+          ctx.font = '12px Arial';
+          ctx.fillText(`${user.coins}`, 430, listY + 25);
         }
-
-        // Contagem de moedas
-        ctx.font = '12px Arial';
-        ctx.fillText(`${user.coins}`, iconX + 20, iconY + 13); // Espaço após o ícone
 
         listY += 60; // Ajustar espaçamento entre os usuários
       }

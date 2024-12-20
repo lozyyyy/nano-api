@@ -583,7 +583,7 @@ app.get('/api/rank', async (req, res) => {
     // Desenhar o pódio
     const podiumPositions = [
       { x: 135, y: 250 }, // 1º lugar
-      { x: 65, y: 280 }, // 2º lugar
+      { x: 65, y: 280 },  // 2º lugar
       { x: 210, y: 300 }, // 3º lugar
     ];
 
@@ -614,10 +614,15 @@ app.get('/api/rank', async (req, res) => {
 
     // Desenhar a lista lateral
     let listY = 60;
+    const avatarSize = 50; // Aumentar o tamanho do avatar
+    const iconSize = 24;   // Tamanho do ícone de moeda
+    const coinsOffset = 8; // Espaço entre ícone e texto
+
+    const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'))
+
     for (const user of listInfo) {
       if (user) {
-        // Aumentar o tamanho dos avatares da lista lateral
-        const avatarSize = 40;
+        // Desenhar avatar
         await drawAvatar(ctx, user.avatar, 350, listY - 20, avatarSize);
 
         // Nome do usuário
@@ -626,9 +631,15 @@ app.get('/api/rank', async (req, res) => {
         ctx.textAlign = 'left';
         ctx.fillText(user.username, 400, listY);
 
-        // Contagem de moedas
+        // Ícone de moedas e número de moedas
+        const iconX = 400;
+        const iconY = listY + 10;
+
+        if (coinsIcon) {
+          ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
+        }
         ctx.font = '12px Arial';
-        ctx.fillText(`${user.coins} moedas`, 400, listY + 15);
+        ctx.fillText(`${user.coins} moedas`, iconX + iconSize + coinsOffset, iconY + 18);
 
         listY += 60; // Ajustar espaçamento entre os usuários
       }

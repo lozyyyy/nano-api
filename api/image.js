@@ -467,7 +467,7 @@ app.get('/api/rank', async (req, res) => {
     const ctx = canvas.getContext('2d');
 
     // Carregar a imagem de fundo
-    const background = await loadImage('https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png');
+    const background = await loadImage('/mnt/data/file-R6KK8jyPZwucTsqp5GnYya');
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
     // Obter informações dos usuários para o pódio
@@ -482,23 +482,23 @@ app.get('/api/rank', async (req, res) => {
       })
     );
 
-    // Desenhar o pódio
+    // Desenhar o pódio (Centralizado)
     const podiumPositions = [
-      { x: 265, y: 200 }, // 1º lugar
-      { x: 135, y: 220 }, // 2º lugar
-      { x: 375, y: 240 }, // 3º lugar
+      { x: 260, y: 150 }, // 1º lugar
+      { x: 135, y: 180 }, // 2º lugar
+      { x: 385, y: 210 }, // 3º lugar
     ];
 
     for (let i = 0; i < 3; i++) {
       const user = podiumInfo[i];
       if (user) {
         const { x, y } = podiumPositions[i];
-        await drawAvatar(ctx, user.avatar, x - 50, y - 100, 50);
+        await drawAvatar(ctx, user.avatar, x - 35, y - 75, 70); // Avatar
         ctx.fillStyle = '#ffffff';
-        ctx.font = '18px Arial';
+        ctx.font = '16px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(user.username, x, y);
-        ctx.fillText(`Coins: ${user.coins}`, x, y + 20);
+        ctx.fillText(user.username, x, y + 10); // Nome
+        ctx.fillText(`Coins: ${user.coins}`, x, y + 30); // Moedas
       }
     }
 
@@ -514,15 +514,17 @@ app.get('/api/rank', async (req, res) => {
       })
     );
 
-    // Desenhar a lista lateral
+    // Desenhar a lista lateral (Com avatar)
     let listY = 50;
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#000000';
     for (const user of listInfo) {
       if (user) {
-        ctx.font = '16px Arial';
-        ctx.fillText(`${user.username} - Coins: ${user.coins}`, 350, listY);
-        listY += 30;
+        await drawAvatar(ctx, user.avatar, 350, listY - 30, 30); // Avatar
+        ctx.fillStyle = '#000000';
+        ctx.font = '14px Arial';
+        ctx.fillText(user.username, 390, listY); // Nome
+        ctx.fillText(`Coins: ${user.coins}`, 390, listY + 15); // Moedas
+        listY += 60;
       }
     }
 
@@ -533,4 +535,6 @@ app.get('/api/rank', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
+
+// https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png
 app.listen(3000, () => console.log('API is running on http://localhost:3000'));

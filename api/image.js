@@ -541,7 +541,6 @@ app.get('/api/rank', async (req, res) => {
     return res.status(400).send('Parâmetros "extraData" e "data" são obrigatórios.');
   }
 
-  // Processar dados do pódio (extraData)
   const podiumEntries = extraData.split(',').map(entry => {
     const [id, coins] = entry.split(':');
     return { id: id?.trim(), coins: Number(coins) };
@@ -551,7 +550,6 @@ app.get('/api/rank', async (req, res) => {
     return res.status(400).send('É necessário pelo menos 3 usuários válidos no parâmetro "extraData".');
   }
 
-  // Processar dados da lista lateral (data)
   const listEntries = data.split(',').map(entry => {
     const [id, coins] = entry.split(':');
     return { id: id?.trim(), coins: Number(coins) };
@@ -562,29 +560,27 @@ app.get('/api/rank', async (req, res) => {
   }
 
   try {
-    const canvas = createCanvas(525, 350); // Dimensões da imagem fornecida
+    const canvas = createCanvas(525, 350);
     const ctx = canvas.getContext('2d');
 
-    // Carregar a imagem de fundo
     const background = await loadImage('https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png');
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // Obter informações dos usuários do pódio
     const podiumInfo = await Promise.all(
       podiumEntries.sort((a, b) => b.coins - a.coins).slice(0, 3).map(async (user) => {
         try {
-          return await getUserInfo(user.id);
+          const userInfo = await getUserInfo(user.id);
+          return { ...userInfo, coins: user.coins }; // Adicionar as moedas ao objeto do usuário
         } catch {
           return null;
         }
       })
     );
 
-    // Desenhar o pódio
     const podiumPositions = [
-      { x: 135, y: 250 }, // 1º lugar
-      { x: 65, y: 280 },  // 2º lugar
-      { x: 210, y: 300 }, // 3º lugar
+      { x: 135, y: 250 },
+      { x: 65, y: 280 },
+      { x: 210, y: 300 },
     ];
 
     for (let i = 0; i < 3; i++) {
@@ -593,55 +589,51 @@ app.get('/api/rank', async (req, res) => {
         const { x, y } = podiumPositions[i];
         await drawAvatar(ctx, user.avatar, x - 25, y - 75, 50);
 
-        // Nome do usuário
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(user.username, x, y - 90);
+        ctx.fillText(`${user.username} (${user.coins})`, x, y - 90);
       }
     }
 
-    // Obter informações dos usuários da lista lateral
     const listInfo = await Promise.all(
       listEntries.sort((a, b) => b.coins - a.coins).slice(0, 5).map(async (user) => {
         try {
-          return await getUserInfo(user.id);
+          const userInfo = await getUserInfo(user.id);
+          return { ...userInfo, coins: user.coins }; // Adicionar as moedas ao objeto do usuário
         } catch {
           return null;
         }
       })
     );
 
-    // Desenhar a lista lateral
     let listY = 60;
-    const avatarSize = 50; // Aumentar o tamanho do avatar
-    const iconSize = 24;   // Tamanho do ícone de moeda
-    const coinsOffset = 8; // Espaço entre ícone e texto
+    const avatarSize = 50;
+    const iconSize = 24;
+    const coinsOffset = 8;
 
-    const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'))
+    const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
 
     for (const user of listInfo) {
       if (user) {
-        // Desenhar avatar
         await drawAvatar(ctx, user.avatar, 350, listY - 20, avatarSize);
 
-        // Nome do usuário
         ctx.fillStyle = '#000000';
         ctx.font = '14px Arial';
         ctx.textAlign = 'left';
         ctx.fillText(user.username, 400, listY);
 
-        // Ícone de moedas e número de moedas
         const iconX = 400;
         const iconY = listY + 10;
 
         if (coinsIcon) {
           ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
         }
+
         ctx.font = '12px Arial';
         ctx.fillText(`${user.coins} moedas`, iconX + iconSize + coinsOffset, iconY + 18);
 
-        listY += 60; // Ajustar espaçamento entre os usuários
+        listY += 60;
       }
     }
 

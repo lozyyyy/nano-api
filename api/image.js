@@ -467,7 +467,7 @@ app.get('/api/rank', async (req, res) => {
     const ctx = canvas.getContext('2d');
 
     // Carregar a imagem de fundo
-    const background = await loadImage('/mnt/data/file-R6KK8jyPZwucTsqp5GnYya');
+    const background = await loadImage('https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png');
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
     // Obter informações dos usuários do pódio

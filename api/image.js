@@ -472,7 +472,7 @@ app.get('/api/atm', async (req, res) => {
       y: 40,
     },
     coins: {
-      x: 300,
+      x: 350,
       y: 200,
     },
     bank: {

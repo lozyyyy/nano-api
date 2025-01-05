@@ -469,7 +469,7 @@ app.get('/api/atm', async (req, res) => {
     },
     username: {
       x: 400,
-      y: -10,
+      y: 90,
     },
     coins: {
       x: 350,

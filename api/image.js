@@ -463,7 +463,7 @@ app.get('/api/atm', async (req, res) => {
     overlayWidth: 800,
     overlayHeight: 300,
     avatar: {
-      x: 100,
+      x: 120,
       yOffset: -30,
       size: 150,
     },
@@ -472,11 +472,11 @@ app.get('/api/atm', async (req, res) => {
       y: 40,
     },
     coins: {
-      x: 150,
+      x: 250,
       y: 250,
     },
     bank: {
-      x: 400,
+      x: 700,
       y: 250,
     },
   };

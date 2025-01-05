@@ -469,10 +469,10 @@ app.get('/api/atm', async (req, res) => {
     },
     username: {
       x: 400,
-      y: 90,
+      y: 110,
     },
     coins: {
-      x: 350,
+      x: 300,
       y: 207,
     },
     bank: {
@@ -510,7 +510,7 @@ app.get('/api/atm', async (req, res) => {
 
     // Desenhar nome do usuário ao centro
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px Arial';
+    ctx.font = 'bold 32px Arial';
     ctx.textAlign = 'center';
     ctx.fillText(userInfo.username, overlayX + CONFIGS.username.x, overlayY + CONFIGS.username.y);
 

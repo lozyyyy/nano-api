@@ -472,7 +472,7 @@ app.get('/api/atm', async (req, res) => {
       y: 110,
     },
     coins: {
-      x: 300,
+      x: 320,
       y: 207,
     },
     bank: {
@@ -515,7 +515,7 @@ app.get('/api/atm', async (req, res) => {
     ctx.fillText(userInfo.username, overlayX + CONFIGS.username.x, overlayY + CONFIGS.username.y);
 
     // Desenhar valores de coins e bank com fonte black
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#000';
     ctx.font = 'bold 20px Arial';
 
     // Coins

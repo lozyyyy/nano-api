@@ -484,7 +484,7 @@ app.get('/api/atm', async (req, res) => {
 
     // Desenhar avatar do usuário alinhado à esquerda
     const avatarSize = 100;
-    const avatarX = overlayX + 20; // Alinhar à esquerda
+    const avatarX = overlayX + 70; // Alinhar à esquerda
     const avatarY = overlayY + (overlayHeight - avatarSize) / 2;
     await drawAvatar(ctx, userInfo.avatar, avatarX, avatarY, avatarSize);
 

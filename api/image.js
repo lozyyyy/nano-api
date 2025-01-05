@@ -456,8 +456,33 @@ app.get('/api/atm', async (req, res) => {
     return res.status(400).send('Os parâmetros "user", "coins" e "bank" são obrigatórios.');
   }
 
+  // Configurações
+  const CONFIGS = {
+    canvasWidth: 800,
+    canvasHeight: 300,
+    overlayWidth: 800,
+    overlayHeight: 300,
+    avatar: {
+      x: 120,
+      yOffset: 20,
+      size: 100,
+    },
+    username: {
+      x: 400,
+      y: 40,
+    },
+    coins: {
+      x: 150,
+      y: 250,
+    },
+    bank: {
+      x: 400,
+      y: 250,
+    },
+  };
+
   try {
-    const canvas = createCanvas(800, 300);
+    const canvas = createCanvas(CONFIGS.canvasWidth, CONFIGS.canvasHeight);
     const ctx = canvas.getContext('2d');
 
     // Carregar imagens
@@ -468,45 +493,44 @@ app.get('/api/atm', async (req, res) => {
     ctx.drawImage(mainBackground, 0, 0, canvas.width, canvas.height);
 
     // Redimensionar e centralizar a base
-    const overlayWidth = 800; 
-    const overlayHeight = 300; 
-    const overlayX = (canvas.width - overlayWidth) / 2;
-    const overlayY = (canvas.height - overlayHeight) / 2;
-
-    ctx.drawImage(baseOverlay, overlayX, overlayY, overlayWidth, overlayHeight);
+    const overlayX = (canvas.width - CONFIGS.overlayWidth) / 2;
+    const overlayY = (canvas.height - CONFIGS.overlayHeight) / 2;
+    ctx.drawImage(baseOverlay, overlayX, overlayY, CONFIGS.overlayWidth, CONFIGS.overlayHeight);
 
     // Obter informações do usuário
     const userInfo = await getUserInfo(user);
-
     if (!userInfo) {
       return res.status(404).send('Usuário não encontrado.');
     }
 
     // Desenhar avatar do usuário alinhado à esquerda
-    const avatarSize = 100;
-    const avatarX = overlayX + 70; // Alinhar à esquerda
-    const avatarY = overlayY + (overlayHeight - avatarSize) / 2;
-    await drawAvatar(ctx, userInfo.avatar, avatarX, avatarY, avatarSize);
+    const avatarX = overlayX + CONFIGS.avatar.x;
+    const avatarY = overlayY + (CONFIGS.overlayHeight - CONFIGS.avatar.size) / 2 + CONFIGS.avatar.yOffset;
+    await drawAvatar(ctx, userInfo.avatar, avatarX, avatarY, CONFIGS.avatar.size);
 
     // Desenhar nome do usuário ao centro
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 24px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(userInfo.username, overlayX + overlayWidth / 2, overlayY + 40);
+    ctx.fillText(userInfo.username, overlayX + CONFIGS.username.x, overlayY + CONFIGS.username.y);
 
     // Desenhar valores de coins e bank com fonte black
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 20px Arial';
 
     // Coins
-    const coinsX = overlayX + 70; // Posição reservada na base
-    const coinsY = overlayY + overlayHeight - 55;
-    ctx.fillText(abbreviate(Number(coins)), coinsX, coinsY);
+    ctx.fillText(
+      abbreviate(Number(coins)),
+      overlayX + CONFIGS.coins.x,
+      overlayY + CONFIGS.coins.y
+    );
 
     // Bank
-    const bankX = overlayX + 320; // Posição reservada na base
-    const bankY = overlayY + overlayHeight - 55;
-    ctx.fillText(abbreviate(Number(bank)), bankX, bankY);
+    ctx.fillText(
+      abbreviate(Number(bank)),
+      overlayX + CONFIGS.bank.x,
+      overlayY + CONFIGS.bank.y
+    );
 
     // Retornar a imagem gerada
     res.setHeader('Content-Type', 'image/png');

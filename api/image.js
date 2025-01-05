@@ -468,8 +468,8 @@ app.get('/api/atm', async (req, res) => {
     ctx.drawImage(mainBackground, 0, 0, canvas.width, canvas.height);
 
     // Redimensionar e centralizar a base
-    const overlayWidth = 650; // Aumentado proporcionalmente
-    const overlayHeight = 150; // Aumentado proporcionalmente
+    const overlayWidth = 800; // Aumentado proporcionalmente
+    const overlayHeight = 300; // Aumentado proporcionalmente
     const overlayX = (canvas.width - overlayWidth) / 2;
     const overlayY = (canvas.height - overlayHeight) / 2;
 

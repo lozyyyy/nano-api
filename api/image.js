@@ -476,7 +476,7 @@ app.get('/api/atm', async (req, res) => {
       y: 207,
     },
     bank: {
-      x: 500,
+      x: 550,
       y: 207,
     },
   };

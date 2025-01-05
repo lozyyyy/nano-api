@@ -464,7 +464,7 @@ app.get('/api/atm', async (req, res) => {
     overlayHeight: 300,
     avatar: {
       x: 120,
-      yOffset: 20,
+      yOffset: 0,
       size: 150,
     },
     username: {

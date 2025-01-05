@@ -465,7 +465,7 @@ app.get('/api/atm', async (req, res) => {
     avatar: {
       x: 120,
       yOffset: 20,
-      size: 100,
+      size: 150,
     },
     username: {
       x: 400,

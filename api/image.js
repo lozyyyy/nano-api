@@ -464,13 +464,15 @@ app.get('/api/atm', async (req, res) => {
     const mainBackground = await loadImage('https://i.ibb.co/5MhfrGj/366a7a6e8463.jpg');
     const baseOverlay = await loadImage('https://i.ibb.co/g9YXM9Z/74ad9f478758.png');
 
-    // Redimensionar e desenhar o fundo principal para cobrir a base
-    const overlayWidth = 525;
-    const overlayHeight = 100;
+    // Desenhar o fundo principal
+    ctx.drawImage(mainBackground, 0, 0, canvas.width, canvas.height);
+
+    // Redimensionar e centralizar a base
+    const overlayWidth = 650; // Aumentado proporcionalmente
+    const overlayHeight = 150; // Aumentado proporcionalmente
     const overlayX = (canvas.width - overlayWidth) / 2;
     const overlayY = (canvas.height - overlayHeight) / 2;
 
-    ctx.drawImage(mainBackground, 0, 0, canvas.width, canvas.height);
     ctx.drawImage(baseOverlay, overlayX, overlayY, overlayWidth, overlayHeight);
 
     // Obter informações do usuário
@@ -480,33 +482,33 @@ app.get('/api/atm', async (req, res) => {
       return res.status(404).send('Usuário não encontrado.');
     }
 
-    // Desenhar avatar do usuário ao centro à direita
-    const avatarSize = 80;
-    const avatarX = canvas.width - avatarSize - 20;
-    const avatarY = (canvas.height - avatarSize) / 2;
+    // Desenhar avatar do usuário alinhado à ponta da base
+    const avatarSize = 100;
+    const avatarX = overlayX + overlayWidth - avatarSize + 20; // Ajuste para alinhar com a ponta da base
+    const avatarY = overlayY + (overlayHeight - avatarSize) / 2;
     await drawAvatar(ctx, userInfo.avatar, avatarX, avatarY, avatarSize);
 
     // Desenhar nome do usuário na parte marrom da base
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 20px Arial';
+    ctx.font = 'bold 22px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(userInfo.username, canvas.width / 2, overlayY + 25);
+    ctx.fillText(userInfo.username, overlayX + overlayWidth / 2, overlayY + 40);
 
     // Desenhar valores de coins e bank em seus lugares reservados
     const coinIcon = await loadImage('https://cdn-icons-png.flaticon.com/512/138/138281.png'); // Ícone de moeda
     const bankIcon = await loadImage('https://cdn-icons-png.flaticon.com/512/3135/3135706.png'); // Ícone de banco
 
     // Coins
-    const coinsX = overlayX + 50;
-    const coinsY = overlayY + 70;
-    ctx.drawImage(coinIcon, coinsX - 30, coinsY - 15, 30, 30);
-    ctx.fillText(abbreviate(Number(coins)), coinsX + 30, coinsY + 5);
+    const coinsX = overlayX + 70;
+    const coinsY = overlayY + overlayHeight - 55;
+    ctx.drawImage(coinIcon, coinsX - 35, coinsY - 15, 30, 30);
+    ctx.fillText(abbreviate(Number(coins)), coinsX + 40, coinsY + 10);
 
     // Bank
-    const bankX = overlayX + 300;
-    const bankY = overlayY + 70;
-    ctx.drawImage(bankIcon, bankX - 30, bankY - 15, 30, 30);
-    ctx.fillText(abbreviate(Number(bank)), bankX + 30, bankY + 5);
+    const bankX = overlayX + 320;
+    const bankY = overlayY + overlayHeight - 55;
+    ctx.drawImage(bankIcon, bankX - 35, bankY - 15, 30, 30);
+    ctx.fillText(abbreviate(Number(bank)), bankX + 40, bankY + 10);
 
     // Retornar a imagem gerada
     res.setHeader('Content-Type', 'image/png');

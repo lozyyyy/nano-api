@@ -510,8 +510,8 @@ app.get('/api/atm', async (req, res) => {
 
     // Desenhar nome do usuário ao centro
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 32px Arial';
-    ctx.textAlign = 'center';
+    ctx.font = 'bold 50px Arial';
+    ctx.textAlign = 'left';
     ctx.fillText(userInfo.username, overlayX + CONFIGS.username.x, overlayY + CONFIGS.username.y);
 
     // Desenhar valores de coins e bank com fonte black

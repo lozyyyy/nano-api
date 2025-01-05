@@ -448,6 +448,7 @@ app.get('/api/rank', async (req, res) => {
     res.status(500).send('Erro interno do servidor.');
   }
 });
+
 app.get('/api/atm', async (req, res) => {
   const { user, coins, bank } = req.query;
 
@@ -456,15 +457,21 @@ app.get('/api/atm', async (req, res) => {
   }
 
   try {
-    const canvas = createCanvas(525, 300);
+    const canvas = createCanvas(800, 300);
     const ctx = canvas.getContext('2d');
 
-    // Carregar imagens de fundo
+    // Carregar imagens
     const mainBackground = await loadImage('https://i.ibb.co/5MhfrGj/366a7a6e8463.jpg');
-    const overlay = await loadImage('https://i.ibb.co/g9YXM9Z/74ad9f478758.png');
+    const baseOverlay = await loadImage('https://i.ibb.co/g9YXM9Z/74ad9f478758.png');
 
-    // Desenhar o fundo principal
+    // Redimensionar e desenhar o fundo principal para cobrir a base
+    const overlayWidth = 525;
+    const overlayHeight = 100;
+    const overlayX = (canvas.width - overlayWidth) / 2;
+    const overlayY = (canvas.height - overlayHeight) / 2;
+
     ctx.drawImage(mainBackground, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(baseOverlay, overlayX, overlayY, overlayWidth, overlayHeight);
 
     // Obter informações do usuário
     const userInfo = await getUserInfo(user);
@@ -473,33 +480,33 @@ app.get('/api/atm', async (req, res) => {
       return res.status(404).send('Usuário não encontrado.');
     }
 
-    // Desenhar avatar do usuário
+    // Desenhar avatar do usuário ao centro à direita
     const avatarSize = 80;
-    await drawAvatar(ctx, userInfo.avatar, 20, 20, avatarSize);
+    const avatarX = canvas.width - avatarSize - 20;
+    const avatarY = (canvas.height - avatarSize) / 2;
+    await drawAvatar(ctx, userInfo.avatar, avatarX, avatarY, avatarSize);
 
-    // Desenhar o nome do usuário
+    // Desenhar nome do usuário na parte marrom da base
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px Arial';
-    ctx.fillText(userInfo.username, 120, 50);
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(userInfo.username, canvas.width / 2, overlayY + 25);
 
-    // Desenhar overlay para moedas e banco
-    ctx.drawImage(overlay, 0, 200, 525, 100);
-
-    // Ícones para moedas e banco
+    // Desenhar valores de coins e bank em seus lugares reservados
     const coinIcon = await loadImage('https://cdn-icons-png.flaticon.com/512/138/138281.png'); // Ícone de moeda
     const bankIcon = await loadImage('https://cdn-icons-png.flaticon.com/512/3135/3135706.png'); // Ícone de banco
 
-    // Moedas
-    const coinsX = 100, coinsY = 235;
+    // Coins
+    const coinsX = overlayX + 50;
+    const coinsY = overlayY + 70;
     ctx.drawImage(coinIcon, coinsX - 30, coinsY - 15, 30, 30);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 16px Arial';
-    ctx.fillText(`Moedas: ${abbreviate(Number(coins))}`, coinsX, coinsY);
+    ctx.fillText(abbreviate(Number(coins)), coinsX + 30, coinsY + 5);
 
-    // Banco
-    const bankX = 300, bankY = 235;
+    // Bank
+    const bankX = overlayX + 300;
+    const bankY = overlayY + 70;
     ctx.drawImage(bankIcon, bankX - 30, bankY - 15, 30, 30);
-    ctx.fillText(`Banco: ${abbreviate(Number(bank))}`, bankX, bankY);
+    ctx.fillText(abbreviate(Number(bank)), bankX + 30, bankY + 5);
 
     // Retornar a imagem gerada
     res.setHeader('Content-Type', 'image/png');

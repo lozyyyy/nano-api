@@ -140,6 +140,7 @@ app.get('/api', (req, res) => {
     </html>
   `);
 });
+
 app.get('/api/perfil', async (req, res) => {
   const userId = req.query.id || '1159667835761594449';
   
@@ -337,203 +338,6 @@ async function drawAvatar(ctx, avatarUrl, x, y, size) {
 let cachedImage = null;
 let lastUpdateTime = 0;
 
-app.get('/api/rankorigin', async (req, res) => {
-  const dataParam = req.query.data;
-
-  if (!dataParam) {
-    return res.status(400).send('Parâmetro "data" é obrigatório.');
-  }
-
-  const userEntries = dataParam.split(',').map(entry => {
-    const [id, coins] = entry.split(':');
-    return { id: id?.trim(), coins: Number(coins) };
-  });
-
-  const validEntries = userEntries.filter(entry => entry.id && !isNaN(entry.coins));
-
-  if (validEntries.length === 0) {
-    return res.status(400).send('Nenhum dado válido foi enviado.');
-  }
-
-  const maxUsers = 10;
-  const sortedUsers = validEntries
-    .sort((a, b) => b.coins - a.coins)
-    .slice(0, maxUsers);
-
-  try {
-    const width = 720;
-    const height = 640;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
-
-    const background = await loadImage(path.join(__dirname, 'perfil.png'));
-    ctx.drawImage(background, 0, 0, width, height);
-
-    const positions = [
-      { x: 85, y: 220 },
-      { x: 85, y: 305 },
-      { x: 85, y: 390 },
-      { x: 85, y: 477 },
-      { x: 85, y: 564 },
-      { x: 445, y: 220 },
-      { x: 445, y: 305 },
-      { x: 445, y: 390 },
-      { x: 445, y: 477 },
-      { x: 445, y: 564 },
-    ];
-
-    const avatarSize = 50;
-    const avatarOffset = 15;
-    const coinsOffset = 8;
-    const iconSize = 24;
-
-    const userInfoList = await Promise.all(
-      sortedUsers.map(async (user) => {
-        try {
-          const userInfo = await getUserInfo(user.id);
-          if (!userInfo || !userInfo.username || !userInfo.avatar) {
-            return null;
-          }
-          return { ...userInfo, coins: abbreviate(user.coins) };
-        } catch (error) {
-          return null;
-        }
-      })
-    );
-
-    for (let i = 0; i < positions.length; i++) {
-      const user = userInfoList[i];
-      if (user) {
-        const { x, y } = positions[i];
-
-        await drawAvatar(ctx, user.avatar, x, y, avatarSize);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 24px Arial';
-        ctx.fillText(user.username, x + avatarSize + avatarOffset, y + 20);
-
-        const coinsIcon = await loadImage(path.join(__dirname, 'icons/coins.png'));
-        const iconX = x + avatarSize + avatarOffset;
-        const iconY = y + 30;
-
-        if (coinsIcon) {
-          ctx.drawImage(coinsIcon, iconX, iconY, iconSize, iconSize);
-        }
-
-        ctx.font = '20px Arial';
-        ctx.fillText(user.coins, iconX + iconSize + coinsOffset, iconY + 18);
-      }
-    }
-
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.send(canvas.toBuffer('image/png'));
-  } catch (error) {
-    console.error('Erro ao gerar ranking:', error);
-    res.status(500).send('Erro interno do servidor.');
-  }
-});
-app.get('/api/rank3', async (req, res) => {
-  const { extraData, data } = req.query;
-
-  if (!extraData || !data) {
-    return res.status(400).send('Parâmetros "extraData" e "data" são obrigatórios.');
-  }
-
-  // Processar dados do pódio (extraData)
-  const podiumEntries = extraData.split(',').map(entry => {
-    const [id, coins] = entry.split(':');
-    return { id: id?.trim(), coins: Number(coins) };
-  }).filter(entry => entry.id && !isNaN(entry.coins));
-
-  if (podiumEntries.length < 3) {
-    return res.status(400).send('É necessário pelo menos 3 usuários válidos no parâmetro "extraData".');
-  }
-
-  // Processar dados da lista lateral (data)
-  const listEntries = data.split(',').map(entry => {
-    const [id, coins] = entry.split(':');
-    return { id: id?.trim(), coins: Number(coins) };
-  }).filter(entry => entry.id && !isNaN(entry.coins));
-
-  if (listEntries.length < 5) {
-    return res.status(400).send('É necessário pelo menos 5 usuários válidos no parâmetro "data".');
-  }
-
-  try {
-    const canvas = createCanvas(525, 350); // Dimensões da imagem fornecida
-    const ctx = canvas.getContext('2d');
-
-    // Carregar a imagem de fundo
-    const background = await loadImage('https://i.ibb.co/CsJcz3R/a78ddf4e2d1a.png');
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-
-    // Obter informações dos usuários do pódio
-    const podiumInfo = await Promise.all(
-      podiumEntries.sort((a, b) => b.coins - a.coins).slice(0, 3).map(async (user) => {
-        try {
-          const userInfo = await getUserInfo(user.id);
-          return { ...userInfo, coins: abbreviate(user.coins) };
-        } catch {
-          return null;
-        }
-      })
-    );
-
-    // Desenhar o pódio
-    const podiumPositions = [
-      { x: 135, y: 250 }, // 1º lugar
-      { x: 65, y: 280 }, // 2º lugar
-      { x: 210, y: 300 }, // 3º lugar
-    ];
-
-    for (let i = 0; i < 3; i++) {
-      const user = podiumInfo[i];
-      if (user) {
-        const { x, y } = podiumPositions[i];
-        await drawAvatar(ctx, user.avatar, x - 25, y - 75, 50);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(user.username, x, y + 5);
-        ctx.fillText(`Coins: ${user.coins}`, x, y + 20);
-      }
-    }
-
-    // Obter informações dos usuários da lista lateral
-    const listInfo = await Promise.all(
-      listEntries.sort((a, b) => b.coins - a.coins).slice(0, 5).map(async (user) => {
-        try {
-          const userInfo = await getUserInfo(user.id);
-          return { ...userInfo, coins: abbreviate(user.coins) };
-        } catch {
-          return null;
-        }
-      })
-    );
-
-    // Desenhar a lista lateral
-    let listY = 60;
-    for (const user of listInfo) {
-      if (user) {
-        await drawAvatar(ctx, user.avatar, 350, listY - 20, 30); // Avatar
-        ctx.fillStyle = '#000000';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(`${user.username} - Coins: ${user.coins}`, 390, listY);
-        listY += 50;
-      }
-    }
-
-    res.setHeader('Content-Type', 'image/png');
-    res.send(canvas.toBuffer('image/png'));
-  } catch (error) {
-    console.error('Erro ao gerar ranking:', error);
-    res.status(500).send('Erro interno do servidor.');
-  }
-});
 app.get('/api/rank', async (req, res) => {
   const { extraData, data } = req.query;
 
@@ -641,6 +445,67 @@ app.get('/api/rank', async (req, res) => {
     res.send(canvas.toBuffer('image/png'));
   } catch (error) {
     console.error('Erro ao gerar ranking:', error);
+    res.status(500).send('Erro interno do servidor.');
+  }
+});
+app.get('/api/atm', async (req, res) => {
+  const { user, coins, bank } = req.query;
+
+  if (!user || !coins || !bank) {
+    return res.status(400).send('Os parâmetros "user", "coins" e "bank" são obrigatórios.');
+  }
+
+  try {
+    const canvas = createCanvas(525, 300);
+    const ctx = canvas.getContext('2d');
+
+    // Carregar imagens de fundo
+    const mainBackground = await loadImage('https://i.ibb.co/5MhfrGj/366a7a6e8463.jpg');
+    const overlay = await loadImage('https://i.ibb.co/g9YXM9Z/74ad9f478758.png');
+
+    // Desenhar o fundo principal
+    ctx.drawImage(mainBackground, 0, 0, canvas.width, canvas.height);
+
+    // Obter informações do usuário
+    const userInfo = await getUserInfo(user);
+
+    if (!userInfo) {
+      return res.status(404).send('Usuário não encontrado.');
+    }
+
+    // Desenhar avatar do usuário
+    const avatarSize = 80;
+    await drawAvatar(ctx, userInfo.avatar, 20, 20, avatarSize);
+
+    // Desenhar o nome do usuário
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 24px Arial';
+    ctx.fillText(userInfo.username, 120, 50);
+
+    // Desenhar overlay para moedas e banco
+    ctx.drawImage(overlay, 0, 200, 525, 100);
+
+    // Ícones para moedas e banco
+    const coinIcon = await loadImage('https://cdn-icons-png.flaticon.com/512/138/138281.png'); // Ícone de moeda
+    const bankIcon = await loadImage('https://cdn-icons-png.flaticon.com/512/3135/3135706.png'); // Ícone de banco
+
+    // Moedas
+    const coinsX = 100, coinsY = 235;
+    ctx.drawImage(coinIcon, coinsX - 30, coinsY - 15, 30, 30);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText(`Moedas: ${abbreviate(Number(coins))}`, coinsX, coinsY);
+
+    // Banco
+    const bankX = 300, bankY = 235;
+    ctx.drawImage(bankIcon, bankX - 30, bankY - 15, 30, 30);
+    ctx.fillText(`Banco: ${abbreviate(Number(bank))}`, bankX, bankY);
+
+    // Retornar a imagem gerada
+    res.setHeader('Content-Type', 'image/png');
+    res.send(canvas.toBuffer('image/png'));
+  } catch (error) {
+    console.error('Erro ao gerar imagem do ATM:', error);
     res.status(500).send('Erro interno do servidor.');
   }
 });

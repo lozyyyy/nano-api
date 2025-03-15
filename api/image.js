@@ -435,7 +435,7 @@ app.get('/api/rank', async (req, res) => {
         }
 
         ctx.font = '12px Arial';
-        ctx.fillText(`${user.coins}`, iconX + iconSize + coinsOffset, iconY + 18); // Exibe apenas o valor das moedas
+        ctx.fillText(`${user.coins}`, iconX + iconSize + coinsOffset, iconY + 18);
 
         listY += 65;
       }
